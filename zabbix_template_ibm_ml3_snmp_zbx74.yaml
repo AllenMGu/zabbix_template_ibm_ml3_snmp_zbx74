@@ -1,0 +1,2932 @@
+zabbix_export:
+  version: '7.4'
+  template_groups:
+  - uuid: 15981e24533845f6bdffb9a4405602a5
+    name: Templates/IBM ML3
+  templates:
+  - uuid: e031f9a38ad34052a6ea55c3915df7e0
+    template: IBM ML3 Tape Library by SNMP
+    name: IBM ML3 Tape Library by SNMP
+    description: 'Template for IBM Storage Networking / IBM TS4300 / IBM Storage Protect ML3 tape library monitoring via SNMP.
+
+
+      Built from supplied MIB files:
+
+      - IBM-AUTOMATION-QUERY-MIB.mib
+
+      - IBM-TS4300-MIB.mib
+
+      - SNIA-SML-MIB.mib
+
+
+      Uses numeric OIDs, so MIB files are not required for polling. MIB files are still useful on the Zabbix server/proxy for readable SNMP trap names.
+
+
+      Designed for Zabbix 7.0 LTS and 6.4+ SNMP walk based low-level discovery. For Zabbix 6.0/5.x, convert SNMP walk LLD to legacy discovery[] syntax before importing.
+
+      '
+    groups:
+    - name: Templates/IBM ML3
+    items:
+    - uuid: f184d2bdd38445449aaeb5d7cdaceaa4
+      name: 'ML3: SNMP availability'
+      type: INTERNAL
+      key: zabbix[host,snmp,available]
+      history: 7d
+      valuemap:
+        name: Zabbix interface availability
+      tags:
+      - tag: component
+        value: system
+      triggers:
+      - uuid: f5a058d42fed44eb97cf035148d344bc
+        expression: max(/IBM ML3 Tape Library by SNMP/zabbix[host,snmp,available],5m)=0
+        name: 'ML3: SNMP is unavailable'
+        priority: AVERAGE
+        opdata: 'Current SNMP availability: {ITEM.LASTVALUE1}'
+        description: No SNMP data has been received from the host interface for 5 minutes.
+        tags:
+        - tag: scope
+          value: availability
+    - uuid: 50eed5afd8a047a9bf162c513c7bcee6
+      name: 'ML3: IBM Automation Query MIB version'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.2.6.257.1.1.0
+      key: ml3.ibm.query.mib.version
+      delay: 1h
+      history: 30d
+      trends: '0'
+      value_type: CHAR
+      tags:
+      - tag: component
+        value: system
+    - uuid: c3a88240d16a4c42acc741eec430a299
+      name: 'ML3: SNIA SML MIB version'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.14851.3.1.1.0
+      key: ml3.snia.sml.mib.version
+      delay: 1h
+      history: 30d
+      trends: '0'
+      value_type: CHAR
+      tags:
+      - tag: component
+        value: system
+    - uuid: 84da3fa8a2b543e3a420c24739ff324d
+      name: 'ML3: System element name'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.14851.3.1.10.1.0
+      key: ml3.system.element_name
+      delay: 1h
+      history: 30d
+      trends: '0'
+      value_type: CHAR
+      tags:
+      - tag: component
+        value: system
+    - uuid: 4d1d90155e9f4f8194db56563d35c78d
+      name: 'ML3: System operational status'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.14851.3.1.10.2.0
+      key: ml3.system.operational_status
+      delay: 5m
+      history: 30d
+      valuemap:
+        name: SNIA-SML-MIB::OperationalStatus
+      tags:
+      - tag: component
+        value: health
+      triggers:
+      - uuid: 978ec8779c7a483ba5d12e08d6f61ced
+        expression: last(/IBM ML3 Tape Library by SNMP/ml3.system.operational_status)<>2
+        name: 'ML3: System operational status is not OK'
+        priority: HIGH
+        opdata: 'Current status: {ITEM.LASTVALUE1}'
+        description: SNIA-SML-MIB OperationalStatus is not ok(2).
+        tags:
+        - tag: scope
+          value: availability
+    - uuid: 5503e0bdae9d4dfb811d0dd8a17a5e2a
+      name: 'ML3: System name'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.14851.3.1.10.3.0
+      key: ml3.system.name
+      delay: 1h
+      history: 30d
+      trends: '0'
+      value_type: CHAR
+      tags:
+      - tag: component
+        value: system
+    - uuid: 87cfb0c2465342189bae9b29615f3c93
+      name: 'ML3: System description'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.14851.3.1.10.8.0
+      key: ml3.system.description
+      delay: 1h
+      history: 30d
+      trends: '0'
+      value_type: CHAR
+      tags:
+      - tag: component
+        value: system
+    - uuid: fec981ada365454db59576bce4efe94e
+      name: 'ML3: Number of sub chassis'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.14851.3.1.4.9.0
+      key: ml3.count.sub_chassis
+      delay: 1h
+      history: 30d
+      tags:
+      - tag: component
+        value: inventory
+    - uuid: e32c416a760c45f3803004f85681bd4c
+      name: 'ML3: Number of media access devices'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.14851.3.1.6.1.0
+      key: ml3.count.drives.snia
+      delay: 1h
+      history: 30d
+      tags:
+      - tag: component
+        value: inventory
+    - uuid: 31e58ffdad264fb9a9cc2a6b2b7064b1
+      name: 'ML3: Number of physical packages'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.14851.3.1.8.1.0
+      key: ml3.count.physical_packages
+      delay: 1h
+      history: 30d
+      tags:
+      - tag: component
+        value: inventory
+    - uuid: 8bf1f832f1834740b079e65080c098a7
+      name: 'ML3: Number of software elements'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.14851.3.1.9.1.0
+      key: ml3.count.software_elements
+      delay: 1h
+      history: 30d
+      tags:
+      - tag: component
+        value: inventory
+    - uuid: 9d269ac3136449ad9ebfa982126aa54d
+      name: 'ML3: Number of changer devices'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.14851.3.1.11.1.0
+      key: ml3.count.changer_devices
+      delay: 1h
+      history: 30d
+      tags:
+      - tag: component
+        value: inventory
+    - uuid: 65d6de1e8a6c474da52c92df4539c4c9
+      name: 'ML3: Number of SCSI protocol controllers'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.14851.3.1.12.1.0
+      key: ml3.count.scsi_controllers
+      delay: 1h
+      history: 30d
+      tags:
+      - tag: component
+        value: inventory
+    - uuid: 494a42319a0e4fdca5d6c6d63898c68e
+      name: 'ML3: Number of storage media locations'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.14851.3.1.13.1.0
+      key: ml3.count.storage_locations
+      delay: 1h
+      history: 30d
+      tags:
+      - tag: component
+        value: inventory
+    - uuid: 78317e28bc244fcbae47ac7b745abe7f
+      name: 'ML3: Number of physical media'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.14851.3.1.13.2.0
+      key: ml3.count.physical_media
+      delay: 1h
+      history: 30d
+      tags:
+      - tag: component
+        value: inventory
+    - uuid: 495a381e1fe344989835855368ca95c8
+      name: 'ML3: Number of limited access ports'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.14851.3.1.14.1.0
+      key: ml3.count.limited_access_ports
+      delay: 1h
+      history: 30d
+      tags:
+      - tag: component
+        value: inventory
+    - uuid: 7301f3fe78ca400c83b27baf8c8b4cc9
+      name: 'ML3: Number of FC ports'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.14851.3.1.15.1.0
+      key: ml3.count.fc_ports
+      delay: 1h
+      history: 30d
+      tags:
+      - tag: component
+        value: inventory
+    - uuid: 4acc3292e57841ef9432ade5b3e7ad5f
+      name: 'ML3: SNIA traps enabled'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.14851.3.1.16.1.0
+      key: ml3.traps.enabled
+      delay: 5m
+      history: 30d
+      valuemap:
+        name: SNIA-SML-MIB::TrapsEnabled
+      tags:
+      - tag: component
+        value: trap
+    - uuid: 865ba249d001475a8fb584a16ba31d70
+      name: 'ML3: Last trap perceived severity'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.14851.3.1.16.6.0
+      key: ml3.trap.severity
+      delay: 5m
+      history: 30d
+      valuemap:
+        name: SNIA-SML-MIB::TrapSeverity
+      tags:
+      - tag: component
+        value: trap
+      triggers:
+      - uuid: 755f2480cde246bf90a0916279e522ca
+        expression: last(/IBM ML3 Tape Library by SNMP/ml3.trap.severity)>=5
+        name: 'ML3: Last SNIA trap severity is major or higher'
+        priority: HIGH
+        opdata: 'Current severity: {ITEM.LASTVALUE1}'
+        description: Trap perceived severity is major(5), critical(6), or fatal(7).
+        tags:
+        - tag: scope
+          value: availability
+    - uuid: a22c8ab341b6495ca4da4f506de302bb
+      name: 'ML3: IBM number of possible chassis'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.2.6.257.1.3.1.0
+      key: ml3.ibm.count.possible_chassis
+      delay: 1h
+      history: 30d
+      tags:
+      - tag: component
+        value: inventory
+    - uuid: ad0b0abf91944e0fa7ef1b01d62e4da1
+      name: 'ML3: IBM number of logical libraries'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.2.6.257.1.4.1.0
+      key: ml3.ibm.count.logical_libraries
+      delay: 1h
+      history: 30d
+      tags:
+      - tag: component
+        value: inventory
+    - uuid: 267066cfe336490ab28a104d57deefcd
+      name: 'ML3: IBM number of possible drives'
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.2.6.257.1.5.1.0
+      key: ml3.ibm.count.possible_drives
+      delay: 1h
+      history: 30d
+      tags:
+      - tag: component
+        value: inventory
+    - uuid: 960259b2e5914ce593007c4133246345
+      name: 'ML3: SNMP traps'
+      type: SNMP_TRAP
+      key: snmptrap["(IBM-TS4300-MIB|SNIA-SML-MIB|ibmTS4300|1\.3\.6\.1\.4\.1\.(2\.6\.263|14851\.3))"]
+      history: 30d
+      trends: '0'
+      value_type: LOG
+      description: Collects IBM TS4300/ML3 and SNIA SML related SNMP traps. Requires Zabbix SNMP trap receiving to be configured on server/proxy.
+      tags:
+      - tag: component
+        value: trap
+    - uuid: 0d6ddad4cd5a44e7b478aefb51525688
+      name: 'ML3: IBM library configuration walk'
+      type: SNMP_AGENT
+      snmp_oid: walk[1.3.6.1.4.1.2.6.257.1.2.1.1]
+      key: ml3.ibm.library.config.walk
+      history: '0'
+      trends: '0'
+      value_type: TEXT
+      description: Master SNMP walk item used by dependent discovery rules and item prototypes. Uses a compact table-root walk[] OID to avoid Zabbix import snmp_oid
+        length limits.
+      tags:
+      - tag: component
+        value: library
+      - tag: role
+        value: raw
+    - uuid: 75ec8397391a45bcb79c97029ee3081f
+      name: 'ML3: IBM chassis configuration walk'
+      type: SNMP_AGENT
+      snmp_oid: walk[1.3.6.1.4.1.2.6.257.1.3.2.1]
+      key: ml3.ibm.chassis.config.walk
+      history: '0'
+      trends: '0'
+      value_type: TEXT
+      description: Master SNMP walk item used by dependent discovery rules and item prototypes. Uses a compact table-root walk[] OID to avoid Zabbix import snmp_oid
+        length limits.
+      tags:
+      - tag: component
+        value: chassis
+      - tag: role
+        value: raw
+    - uuid: 99eb8178ddbc4dae860b70a587f8842f
+      name: 'ML3: IBM drive configuration walk'
+      type: SNMP_AGENT
+      snmp_oid: walk[1.3.6.1.4.1.2.6.257.1.5.2.1]
+      key: ml3.ibm.drive.config.walk
+      history: '0'
+      trends: '0'
+      value_type: TEXT
+      description: Master SNMP walk item used by dependent discovery rules and item prototypes. Uses a compact table-root walk[] OID to avoid Zabbix import snmp_oid
+        length limits.
+      tags:
+      - tag: component
+        value: drive
+      - tag: role
+        value: raw
+    - uuid: 0ccf0ae9812244efb31e70438c45e939
+      name: 'ML3: SNIA sub chassis walk'
+      type: SNMP_AGENT
+      snmp_oid: walk[1.3.6.1.4.1.14851.3.1.4.10.1]
+      key: ml3.snia.subchassis.walk
+      history: '0'
+      trends: '0'
+      value_type: TEXT
+      description: Master SNMP walk item used by dependent discovery rules and item prototypes. Uses a compact table-root walk[] OID to avoid Zabbix import snmp_oid
+        length limits.
+      tags:
+      - tag: component
+        value: chassis
+      - tag: role
+        value: raw
+    - uuid: d66d62ea0ee544d784b5ac61100e0f2a
+      name: 'ML3: SNIA media access device walk'
+      type: SNMP_AGENT
+      snmp_oid: walk[1.3.6.1.4.1.14851.3.1.6.2.1]
+      key: ml3.snia.media_access_device.walk
+      history: '0'
+      trends: '0'
+      value_type: TEXT
+      description: Master SNMP walk item used by dependent discovery rules and item prototypes. Uses a compact table-root walk[] OID to avoid Zabbix import snmp_oid
+        length limits.
+      tags:
+      - tag: component
+        value: drive
+      - tag: role
+        value: raw
+    - uuid: 2ff443688d3d47719c863abb3847dda0
+      name: 'ML3: SNIA changer device walk'
+      type: SNMP_AGENT
+      snmp_oid: walk[1.3.6.1.4.1.14851.3.1.11.2.1]
+      key: ml3.snia.changer_device.walk
+      history: '0'
+      trends: '0'
+      value_type: TEXT
+      description: Master SNMP walk item used by dependent discovery rules and item prototypes. Uses a compact table-root walk[] OID to avoid Zabbix import snmp_oid
+        length limits.
+      tags:
+      - tag: component
+        value: changer
+      - tag: role
+        value: raw
+    - uuid: 206047f31cd94b9fa102fdcc48c17a57
+      name: 'ML3: SNIA SCSI protocol controller walk'
+      type: SNMP_AGENT
+      snmp_oid: walk[1.3.6.1.4.1.14851.3.1.12.2.1]
+      key: ml3.snia.scsi_controller.walk
+      history: '0'
+      trends: '0'
+      value_type: TEXT
+      description: Master SNMP walk item used by dependent discovery rules and item prototypes. Uses a compact table-root walk[] OID to avoid Zabbix import snmp_oid
+        length limits.
+      tags:
+      - tag: component
+        value: controller
+      - tag: role
+        value: raw
+    - uuid: 87430a13100443d597de78dc1bd35391
+      name: 'ML3: SNIA FC port walk'
+      type: SNMP_AGENT
+      snmp_oid: walk[1.3.6.1.4.1.14851.3.1.15.2.1]
+      key: ml3.snia.fc_port.walk
+      history: '0'
+      trends: '0'
+      value_type: TEXT
+      description: Master SNMP walk item used by dependent discovery rules and item prototypes. Uses a compact table-root walk[] OID to avoid Zabbix import snmp_oid
+        length limits.
+      tags:
+      - tag: component
+        value: port
+      - tag: role
+        value: raw
+    - uuid: b9379e22fb7a4ac19d326185d0831cea
+      name: 'ML3: SNIA storage media location walk'
+      type: SNMP_AGENT
+      snmp_oid: walk[1.3.6.1.4.1.14851.3.1.13.3.1]
+      key: ml3.snia.storage_location.walk
+      history: '0'
+      trends: '0'
+      value_type: TEXT
+      description: Master SNMP walk item used by dependent discovery rules and item prototypes. Uses a compact table-root walk[] OID to avoid Zabbix import snmp_oid
+        length limits.
+      tags:
+      - tag: component
+        value: slot
+      - tag: role
+        value: raw
+    - uuid: 6569803287ba4e6097c8ef63fd025a42
+      name: 'ML3: SNIA software element walk'
+      type: SNMP_AGENT
+      snmp_oid: walk[1.3.6.1.4.1.14851.3.1.9.2.1]
+      key: ml3.snia.software_element.walk
+      history: '0'
+      trends: '0'
+      value_type: TEXT
+      description: Master SNMP walk item used by dependent discovery rules and item prototypes. Uses a compact table-root walk[] OID to avoid Zabbix import snmp_oid
+        length limits.
+      tags:
+      - tag: component
+        value: firmware
+      - tag: role
+        value: raw
+    discovery_rules:
+    - uuid: fb507aa7bd7a40d0a33f9f0a2e0fba8f
+      name: 'ML3: IBM library configuration discovery'
+      type: DEPENDENT
+      key: ml3.ibm.library.config.discovery
+      delay: '0'
+      lifetime: 30d
+      enabled_lifetime: 7d
+      description: Discovery of the single library configuration row from IBM-AUTOMATION-QUERY-MIB::libraryconfigTable.
+      preprocessing:
+      - type: SNMP_WALK_TO_JSON
+        parameters:
+        - '{#LIBCFGIDX}'
+        - 1.3.6.1.4.1.2.6.257.1.2.1.1.1
+        - '0'
+      master_item:
+        key: ml3.ibm.library.config.walk
+      item_prototypes:
+      - uuid: ee9adc38c0fe48ab92bff142e9c03e27
+        name: 'ML3: Library config {#SNMPINDEX}: Number of chassis'
+        type: DEPENDENT
+        key: ml3.library.config.chassis[{#SNMPINDEX}]
+        delay: '0'
+        history: 30d
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2.6.257.1.2.1.1.1.{#SNMPINDEX}
+          - '0'
+        master_item:
+          key: ml3.ibm.library.config.walk
+        tags:
+        - tag: component
+          value: library
+      - uuid: b809da6ae18646fd85c21ccbe2906af9
+        name: 'ML3: Library config {#SNMPINDEX}: Number of logical libraries'
+        type: DEPENDENT
+        key: ml3.library.config.logical_libraries[{#SNMPINDEX}]
+        delay: '0'
+        history: 30d
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2.6.257.1.2.1.1.2.{#SNMPINDEX}
+          - '0'
+        master_item:
+          key: ml3.ibm.library.config.walk
+        tags:
+        - tag: component
+          value: library
+      - uuid: 1c4daea988ac4e49a4fb67548e5bb59b
+        name: 'ML3: Library config {#SNMPINDEX}: Number of storage elements'
+        type: DEPENDENT
+        key: ml3.library.config.storage_elements[{#SNMPINDEX}]
+        delay: '0'
+        history: 30d
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2.6.257.1.2.1.1.3.{#SNMPINDEX}
+          - '0'
+        master_item:
+          key: ml3.ibm.library.config.walk
+        tags:
+        - tag: component
+          value: library
+      - uuid: 54d83c14270d40a086bf3b74c4aa5e01
+        name: 'ML3: Library config {#SNMPINDEX}: Number of drives'
+        type: DEPENDENT
+        key: ml3.library.config.dtes[{#SNMPINDEX}]
+        delay: '0'
+        history: 30d
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2.6.257.1.2.1.1.4.{#SNMPINDEX}
+          - '0'
+        master_item:
+          key: ml3.ibm.library.config.walk
+        tags:
+        - tag: component
+          value: library
+      - uuid: d4a53d007c304d22ad82274bb696178d
+        name: 'ML3: Library config {#SNMPINDEX}: Number of I/O elements'
+        type: DEPENDENT
+        key: ml3.library.config.iees[{#SNMPINDEX}]
+        delay: '0'
+        history: 30d
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2.6.257.1.2.1.1.5.{#SNMPINDEX}
+          - '0'
+        master_item:
+          key: ml3.ibm.library.config.walk
+        tags:
+        - tag: component
+          value: library
+      - uuid: c247deeaf7be4461add31f90e7e275ee
+        name: 'ML3: Library config {#SNMPINDEX}: VIO enabled'
+        type: DEPENDENT
+        key: ml3.library.config.vio_enabled[{#SNMPINDEX}]
+        delay: '0'
+        history: 30d
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2.6.257.1.2.1.1.6.{#SNMPINDEX}
+          - '0'
+        master_item:
+          key: ml3.ibm.library.config.walk
+        valuemap:
+          name: IBM-AUTOMATION-QUERY-MIB::TruthValue
+        tags:
+        - tag: component
+          value: library
+      - uuid: 058409f70e2b46a78de3c2f52858d997
+        name: 'ML3: Library config {#SNMPINDEX}: LTO encryption licensed'
+        type: DEPENDENT
+        key: ml3.library.config.lto_encryption_licensed[{#SNMPINDEX}]
+        delay: '0'
+        history: 30d
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2.6.257.1.2.1.1.7.{#SNMPINDEX}
+          - '0'
+        master_item:
+          key: ml3.ibm.library.config.walk
+        valuemap:
+          name: IBM-AUTOMATION-QUERY-MIB::TruthValue
+        tags:
+        - tag: component
+          value: library
+      - uuid: 4105d37678c5464fb27df089e55d048a
+        name: 'ML3: Library config {#SNMPINDEX}: Path failover licensed'
+        type: DEPENDENT
+        key: ml3.library.config.path_failover_licensed[{#SNMPINDEX}]
+        delay: '0'
+        history: 30d
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2.6.257.1.2.1.1.8.{#SNMPINDEX}
+          - '0'
+        master_item:
+          key: ml3.ibm.library.config.walk
+        valuemap:
+          name: IBM-AUTOMATION-QUERY-MIB::TruthValue
+        tags:
+        - tag: component
+          value: library
+      - uuid: f0e0c6e0369249b4a1868cbba23da1df
+        name: 'ML3: Library config {#SNMPINDEX}: Auto clean enabled'
+        type: DEPENDENT
+        key: ml3.library.config.auto_clean[{#SNMPINDEX}]
+        delay: '0'
+        history: 30d
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2.6.257.1.2.1.1.10.{#SNMPINDEX}
+          - '0'
+        master_item:
+          key: ml3.ibm.library.config.walk
+        valuemap:
+          name: IBM-AUTOMATION-QUERY-MIB::TruthValue
+        tags:
+        - tag: component
+          value: library
+      - uuid: 6f97bc62663b435398a99c13f58d7de4
+        name: 'ML3: Library config {#SNMPINDEX}: NTP enabled'
+        type: DEPENDENT
+        key: ml3.library.config.ntp_enabled[{#SNMPINDEX}]
+        delay: '0'
+        history: 30d
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2.6.257.1.2.1.1.22.{#SNMPINDEX}
+          - '0'
+        master_item:
+          key: ml3.ibm.library.config.walk
+        valuemap:
+          name: IBM-AUTOMATION-QUERY-MIB::TruthValue
+        tags:
+        - tag: component
+          value: library
+      - uuid: d00f68b39ec14464b5965ccadde13a2c
+        name: 'ML3: Library config {#SNMPINDEX}: SNMP enabled'
+        type: DEPENDENT
+        key: ml3.library.config.snmp_enabled[{#SNMPINDEX}]
+        delay: '0'
+        history: 30d
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2.6.257.1.2.1.1.39.{#SNMPINDEX}
+          - '0'
+        master_item:
+          key: ml3.ibm.library.config.walk
+        valuemap:
+          name: IBM-AUTOMATION-QUERY-MIB::TruthValue
+        tags:
+        - tag: component
+          value: library
+      - uuid: 90cce90b88c4499381dbad46ed37bec2
+        name: 'ML3: Library config {#SNMPINDEX}: Call home enabled'
+        type: DEPENDENT
+        key: ml3.library.config.call_home[{#SNMPINDEX}]
+        delay: '0'
+        history: 30d
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2.6.257.1.2.1.1.40.{#SNMPINDEX}
+          - '0'
+        master_item:
+          key: ml3.ibm.library.config.walk
+        valuemap:
+          name: IBM-AUTOMATION-QUERY-MIB::TruthValue
+        tags:
+        - tag: component
+          value: library
+      graph_prototypes:
+      - uuid: dcef8dcf0a4649bfb1d305f4d5c268ae
+        name: 'ML3: Library config {#SNMPINDEX}: Capacity overview'
+        height: '220'
+        graph_items:
+        - sortorder: '0'
+          color: 199C0D
+          item:
+            host: IBM ML3 Tape Library by SNMP
+            key: ml3.library.config.chassis[{#SNMPINDEX}]
+        - sortorder: '1'
+          color: F63100
+          item:
+            host: IBM ML3 Tape Library by SNMP
+            key: ml3.library.config.logical_libraries[{#SNMPINDEX}]
+        - sortorder: '2'
+          color: 00611C
+          item:
+            host: IBM ML3 Tape Library by SNMP
+            key: ml3.library.config.storage_elements[{#SNMPINDEX}]
+        - sortorder: '3'
+          color: F7941D
+          item:
+            host: IBM ML3 Tape Library by SNMP
+            key: ml3.library.config.dtes[{#SNMPINDEX}]
+        - sortorder: '4'
+          color: 2774A4
+          item:
+            host: IBM ML3 Tape Library by SNMP
+            key: ml3.library.config.iees[{#SNMPINDEX}]
+    - uuid: 35e5891695e84155ae335a021295b3ae
+      name: 'ML3: IBM chassis configuration discovery'
+      type: DEPENDENT
+      key: ml3.ibm.chassis.discovery
+      delay: '0'
+      lifetime: 30d
+      enabled_lifetime: 7d
+      description: Discovery of chassis/frame configuration from IBM-AUTOMATION-QUERY-MIB::frameconfigTable.
+      preprocessing:
+      - type: SNMP_WALK_TO_JSON
+        parameters:
+        - '{#CHASSISIDX}'
+        - 1.3.6.1.4.1.2.6.257.1.3.2.1.1
+        - '0'
+        - '{#CHASSISSN}'
+        - 1.3.6.1.4.1.2.6.257.1.3.2.1.9
+        - '0'
+      master_item:
+        key: ml3.ibm.chassis.config.walk
+      item_prototypes:
+      - uuid: 2c77bc8e945046e9b4eec3418abde481
+        name: 'ML3: Chassis {#SNMPINDEX}: Type'
+        type: DEPENDENT
+        key: ml3.chassis.type[{#SNMPINDEX}]
+        delay: '0'
+        history: 30d
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2.6.257.1.3.2.1.2.{#SNMPINDEX}
+          - '0'
+        master_item:
+          key: ml3.ibm.chassis.config.walk
+        tags:
+        - tag: component
+          value: chassis
+      - uuid: ba6aeda9c1b24106b209f9e9ec9bd75e
+        name: 'ML3: Chassis {#SNMPINDEX}: Power supply 1 status'
+        type: DEPENDENT
+        key: ml3.chassis.ps1_status[{#SNMPINDEX}]
+        delay: '0'
+        history: 30d
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2.6.257.1.3.2.1.3.{#SNMPINDEX}
+          - '0'
+        master_item:
+          key: ml3.ibm.chassis.config.walk
+        valuemap:
+          name: IBM-AUTOMATION-QUERY-MIB::PowerSupplyInstalled
+        tags:
+        - tag: component
+          value: power
+      - uuid: cebf8aa940d74e159b6ad50364a582a7
+        name: 'ML3: Chassis {#SNMPINDEX}: Power supply 2 status'
+        type: DEPENDENT
+        key: ml3.chassis.ps2_status[{#SNMPINDEX}]
+        delay: '0'
+        history: 30d
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2.6.257.1.3.2.1.4.{#SNMPINDEX}
+          - '0'
+        master_item:
+          key: ml3.ibm.chassis.config.walk
+        valuemap:
+          name: IBM-AUTOMATION-QUERY-MIB::PowerSupplyInstalled
+        tags:
+        - tag: component
+          value: power
+      - uuid: 4c6a2485439d4e7cbc69c16084254460
+        name: 'ML3: Chassis {#SNMPINDEX}: Installed drives'
+        type: DEPENDENT
+        key: ml3.chassis.installed_drives[{#SNMPINDEX}]
+        delay: '0'
+        history: 30d
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2.6.257.1.3.2.1.5.{#SNMPINDEX}
+          - '0'
+        master_item:
+          key: ml3.ibm.chassis.config.walk
+        tags:
+        - tag: component
+          value: drive
+      - uuid: 4e5bd59cf1964e9c84dfdf2e49623803
+        name: 'ML3: Chassis {#SNMPINDEX}: I/O type'
+        type: DEPENDENT
+        key: ml3.chassis.io_type[{#SNMPINDEX}]
+        delay: '0'
+        history: 30d
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2.6.257.1.3.2.1.6.{#SNMPINDEX}
+          - '0'
+        master_item:
+          key: ml3.ibm.chassis.config.walk
+        tags:
+        - tag: component
+          value: chassis
+      - uuid: 524988a05e4d4ea2b60a610c47348c60
+        name: 'ML3: Chassis {#SNMPINDEX}: I/O locations'
+        type: DEPENDENT
+        key: ml3.chassis.io_locations[{#SNMPINDEX}]
+        delay: '0'
+        history: 30d
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2.6.257.1.3.2.1.7.{#SNMPINDEX}
+          - '0'
+        master_item:
+          key: ml3.ibm.chassis.config.walk
+        tags:
+        - tag: component
+          value: slot
+      - uuid: f159b908ff9a46a5ab59eff068bf03e1
+        name: 'ML3: Chassis {#SNMPINDEX}: Licensed capacity'
+        type: DEPENDENT
+        key: ml3.chassis.licensed_capacity[{#SNMPINDEX}]
+        delay: '0'
+        history: 30d
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2.6.257.1.3.2.1.8.{#SNMPINDEX}
+          - '0'
+        master_item:
+          key: ml3.ibm.chassis.config.walk
+        tags:
+        - tag: component
+          value: capacity
+      - uuid: 6487cadd0bc0489eb527ed03e03958ed
+        name: 'ML3: Chassis {#SNMPINDEX}: Serial number'
+        type: DEPENDENT
+        key: ml3.chassis.serial[{#SNMPINDEX}]
+        delay: '0'
+        history: 30d
+        trends: '0'
+        value_type: CHAR
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2.6.257.1.3.2.1.9.{#SNMPINDEX}
+          - '0'
+        - type: DISCARD_UNCHANGED_HEARTBEAT
+          parameters:
+          - 1d
+        master_item:
+          key: ml3.ibm.chassis.config.walk
+        tags:
+        - tag: component
+          value: chassis
+      - uuid: c0d86b75b0644534a9c6559e289dc76a
+        name: 'ML3: Chassis {#SNMPINDEX}: Group WWNN'
+        type: DEPENDENT
+        key: ml3.chassis.group_wwnn[{#SNMPINDEX}]
+        delay: '0'
+        history: 30d
+        trends: '0'
+        value_type: CHAR
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2.6.257.1.3.2.1.10.{#SNMPINDEX}
+          - '0'
+        - type: DISCARD_UNCHANGED_HEARTBEAT
+          parameters:
+          - 1d
+        master_item:
+          key: ml3.ibm.chassis.config.walk
+        tags:
+        - tag: component
+          value: chassis
+      - uuid: b5d84748fbb44436950e6f74df87262b
+        name: 'ML3: Chassis {#SNMPINDEX}: Maximum available capacity'
+        type: DEPENDENT
+        key: ml3.chassis.max_available_capacity[{#SNMPINDEX}]
+        delay: '0'
+        history: 30d
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2.6.257.1.3.2.1.11.{#SNMPINDEX}
+          - '0'
+        master_item:
+          key: ml3.ibm.chassis.config.walk
+        tags:
+        - tag: component
+          value: capacity
+      - uuid: 051d9e9dbfb04726a2ec4664dc20eb5d
+        name: 'ML3: Chassis {#SNMPINDEX}: Power supply redundancy'
+        type: DEPENDENT
+        key: ml3.chassis.ps_redundancy[{#SNMPINDEX}]
+        delay: '0'
+        history: 30d
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2.6.257.1.3.2.1.28.{#SNMPINDEX}
+          - '0'
+        master_item:
+          key: ml3.ibm.chassis.config.walk
+        valuemap:
+          name: IBM-AUTOMATION-QUERY-MIB::PowerSupplyRedundancy
+        tags:
+        - tag: component
+          value: power
+        trigger_prototypes:
+        - uuid: 2dc74c710ae74ff58fdf2fca4774d6cd
+          expression: last(/IBM ML3 Tape Library by SNMP/ml3.chassis.ps_redundancy[{#SNMPINDEX}])=2
+          name: 'ML3: Chassis {#SNMPINDEX}: Power supply redundancy is not OK'
+          priority: AVERAGE
+          opdata: 'Current redundancy: {ITEM.LASTVALUE1}'
+          description: IBM power supply redundancy returned notOk(2).
+          tags:
+          - tag: scope
+            value: availability
+      graph_prototypes:
+      - uuid: 6582930fc3c542bbbb32d9f244da01f0
+        name: 'ML3: Chassis {#SNMPINDEX}: Capacity'
+        height: '220'
+        graph_items:
+        - sortorder: '0'
+          color: 199C0D
+          item:
+            host: IBM ML3 Tape Library by SNMP
+            key: ml3.chassis.installed_drives[{#SNMPINDEX}]
+        - sortorder: '1'
+          color: F63100
+          item:
+            host: IBM ML3 Tape Library by SNMP
+            key: ml3.chassis.licensed_capacity[{#SNMPINDEX}]
+        - sortorder: '2'
+          color: 00611C
+          item:
+            host: IBM ML3 Tape Library by SNMP
+            key: ml3.chassis.max_available_capacity[{#SNMPINDEX}]
+      - uuid: 66bfbe4d00e74d41b82c098c4ff06eba
+        name: 'ML3: Chassis {#SNMPINDEX}: Power status'
+        height: '200'
+        graph_items:
+        - sortorder: '0'
+          color: F7941D
+          item:
+            host: IBM ML3 Tape Library by SNMP
+            key: ml3.chassis.ps1_status[{#SNMPINDEX}]
+        - sortorder: '1'
+          color: 2774A4
+          item:
+            host: IBM ML3 Tape Library by SNMP
+            key: ml3.chassis.ps2_status[{#SNMPINDEX}]
+        - sortorder: '2'
+          color: A54F10
+          item:
+            host: IBM ML3 Tape Library by SNMP
+            key: ml3.chassis.ps_redundancy[{#SNMPINDEX}]
+    - uuid: 9ff24409b3334aa5925e336464cdd420
+      name: 'ML3: IBM drive configuration discovery'
+      type: DEPENDENT
+      key: ml3.ibm.drive.config.discovery
+      delay: '0'
+      lifetime: 30d
+      enabled_lifetime: 7d
+      description: Discovery of drive configuration from IBM-AUTOMATION-QUERY-MIB::driveConfigTable.
+      preprocessing:
+      - type: SNMP_WALK_TO_JSON
+        parameters:
+        - '{#DRIVEIDX}'
+        - 1.3.6.1.4.1.2.6.257.1.5.2.1.1
+        - '0'
+        - '{#DRIVEWWN}'
+        - 1.3.6.1.4.1.2.6.257.1.5.2.1.26
+        - '0'
+      master_item:
+        key: ml3.ibm.drive.config.walk
+      item_prototypes:
+      - uuid: 726285ceed3c4a9691defd406d957d98
+        name: 'ML3: Drive {#SNMPINDEX}: Frame index'
+        type: DEPENDENT
+        key: ml3.drive.config.frame[{#SNMPINDEX}]
+        delay: '0'
+        history: 30d
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2.6.257.1.5.2.1.2.{#SNMPINDEX}
+          - '0'
+        master_item:
+          key: ml3.ibm.drive.config.walk
+        tags:
+        - tag: component
+          value: drive
+      - uuid: f70a7c534cc74edbae5ad7bdad5ffd4f
+        name: 'ML3: Drive {#SNMPINDEX}: Column index'
+        type: DEPENDENT
+        key: ml3.drive.config.column[{#SNMPINDEX}]
+        delay: '0'
+        history: 30d
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2.6.257.1.5.2.1.3.{#SNMPINDEX}
+          - '0'
+        master_item:
+          key: ml3.ibm.drive.config.walk
+        tags:
+        - tag: component
+          value: drive
+      - uuid: 7cd7b1dca40f444e8594dbbfd16e8185
+        name: 'ML3: Drive {#SNMPINDEX}: Row index'
+        type: DEPENDENT
+        key: ml3.drive.config.row[{#SNMPINDEX}]
+        delay: '0'
+        history: 30d
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2.6.257.1.5.2.1.4.{#SNMPINDEX}
+          - '0'
+        master_item:
+          key: ml3.ibm.drive.config.walk
+        tags:
+        - tag: component
+          value: drive
+      - uuid: 8c9dccb68aea48f88579893b61e1bb77
+        name: 'ML3: Drive {#SNMPINDEX}: Logical library'
+        type: DEPENDENT
+        key: ml3.drive.config.logical_library[{#SNMPINDEX}]
+        delay: '0'
+        history: 30d
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2.6.257.1.5.2.1.5.{#SNMPINDEX}
+          - '0'
+        master_item:
+          key: ml3.ibm.drive.config.walk
+        tags:
+        - tag: component
+          value: drive
+      - uuid: 2ff9396bb15a472496d8c6515a1c9206
+        name: 'ML3: Drive {#SNMPINDEX}: Virtual element address'
+        type: DEPENDENT
+        key: ml3.drive.config.vea[{#SNMPINDEX}]
+        delay: '0'
+        history: 30d
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2.6.257.1.5.2.1.6.{#SNMPINDEX}
+          - '0'
+        master_item:
+          key: ml3.ibm.drive.config.walk
+        tags:
+        - tag: component
+          value: drive
+      - uuid: cc96c11359294f55ad073ae79e77b3ad
+        name: 'ML3: Drive {#SNMPINDEX}: Installed'
+        type: DEPENDENT
+        key: ml3.drive.config.installed[{#SNMPINDEX}]
+        delay: '0'
+        history: 30d
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2.6.257.1.5.2.1.7.{#SNMPINDEX}
+          - '0'
+        master_item:
+          key: ml3.ibm.drive.config.walk
+        valuemap:
+          name: IBM-AUTOMATION-QUERY-MIB::DriveInstalled
+        tags:
+        - tag: component
+          value: drive
+      - uuid: 36c4357982fa4160b7b9ca1ae86361db
+        name: 'ML3: Drive {#SNMPINDEX}: Control path'
+        type: DEPENDENT
+        key: ml3.drive.config.control_path[{#SNMPINDEX}]
+        delay: '0'
+        history: 30d
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2.6.257.1.5.2.1.8.{#SNMPINDEX}
+          - '0'
+        master_item:
+          key: ml3.ibm.drive.config.walk
+        valuemap:
+          name: IBM-AUTOMATION-QUERY-MIB::TruthValue
+        tags:
+        - tag: component
+          value: drive
+      - uuid: 2ede9004f4294a14830e38b73d5d3c09
+        name: 'ML3: Drive {#SNMPINDEX}: Drive generation'
+        type: DEPENDENT
+        key: ml3.drive.config.generation[{#SNMPINDEX}]
+        delay: '0'
+        history: 30d
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2.6.257.1.5.2.1.10.{#SNMPINDEX}
+          - '0'
+        master_item:
+          key: ml3.ibm.drive.config.walk
+        tags:
+        - tag: component
+          value: drive
+      - uuid: ea4954af57c74c85ad86373126c6e4af
+        name: 'ML3: Drive {#SNMPINDEX}: Port 0 signal state'
+        type: DEPENDENT
+        key: ml3.drive.config.port0_state[{#SNMPINDEX}]
+        delay: '0'
+        history: 30d
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2.6.257.1.5.2.1.13.{#SNMPINDEX}
+          - '0'
+        master_item:
+          key: ml3.ibm.drive.config.walk
+        valuemap:
+          name: IBM-AUTOMATION-QUERY-MIB::DrivePortSignal
+        tags:
+        - tag: component
+          value: port
+      - uuid: 68e2e325a621452f91200e3fedfa2f51
+        name: 'ML3: Drive {#SNMPINDEX}: Port 1 signal state'
+        type: DEPENDENT
+        key: ml3.drive.config.port1_state[{#SNMPINDEX}]
+        delay: '0'
+        history: 30d
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2.6.257.1.5.2.1.14.{#SNMPINDEX}
+          - '0'
+        master_item:
+          key: ml3.ibm.drive.config.walk
+        valuemap:
+          name: IBM-AUTOMATION-QUERY-MIB::DrivePortSignal
+        tags:
+        - tag: component
+          value: port
+      - uuid: 13aed43422254beea121dfb592c36c68
+        name: 'ML3: Drive {#SNMPINDEX}: Port 0 actual speed enum'
+        type: DEPENDENT
+        key: ml3.drive.config.port0_speed_actual[{#SNMPINDEX}]
+        delay: '0'
+        history: 30d
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2.6.257.1.5.2.1.19.{#SNMPINDEX}
+          - '0'
+        master_item:
+          key: ml3.ibm.drive.config.walk
+        tags:
+        - tag: component
+          value: port
+      - uuid: ea03ff4d5379418286fd280030f49b4a
+        name: 'ML3: Drive {#SNMPINDEX}: Port 1 actual speed enum'
+        type: DEPENDENT
+        key: ml3.drive.config.port1_speed_actual[{#SNMPINDEX}]
+        delay: '0'
+        history: 30d
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2.6.257.1.5.2.1.20.{#SNMPINDEX}
+          - '0'
+        master_item:
+          key: ml3.ibm.drive.config.walk
+        tags:
+        - tag: component
+          value: port
+      - uuid: 75d84971cf7247438f96839e73bbb0a5
+        name: 'ML3: Drive {#SNMPINDEX}: Revision level'
+        type: DEPENDENT
+        key: ml3.drive.config.revision[{#SNMPINDEX}]
+        delay: '0'
+        history: 30d
+        trends: '0'
+        value_type: CHAR
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2.6.257.1.5.2.1.23.{#SNMPINDEX}
+          - '0'
+        - type: DISCARD_UNCHANGED_HEARTBEAT
+          parameters:
+          - 1d
+        master_item:
+          key: ml3.ibm.drive.config.walk
+        tags:
+        - tag: component
+          value: firmware
+      - uuid: c1afcd77bf7b44429abe491aa50e4a53
+        name: 'ML3: Drive {#SNMPINDEX}: Port 0 WWPN'
+        type: DEPENDENT
+        key: ml3.drive.config.port0_wwpn[{#SNMPINDEX}]
+        delay: '0'
+        history: 30d
+        trends: '0'
+        value_type: CHAR
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2.6.257.1.5.2.1.24.{#SNMPINDEX}
+          - '0'
+        - type: DISCARD_UNCHANGED_HEARTBEAT
+          parameters:
+          - 1d
+        master_item:
+          key: ml3.ibm.drive.config.walk
+        tags:
+        - tag: component
+          value: port
+      - uuid: f2f0007c35da40009ef0b142cc3f85a4
+        name: 'ML3: Drive {#SNMPINDEX}: Port 1 WWPN'
+        type: DEPENDENT
+        key: ml3.drive.config.port1_wwpn[{#SNMPINDEX}]
+        delay: '0'
+        history: 30d
+        trends: '0'
+        value_type: CHAR
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2.6.257.1.5.2.1.25.{#SNMPINDEX}
+          - '0'
+        - type: DISCARD_UNCHANGED_HEARTBEAT
+          parameters:
+          - 1d
+        master_item:
+          key: ml3.ibm.drive.config.walk
+        tags:
+        - tag: component
+          value: port
+      - uuid: a1d0e8d6d6b2422991106877950cb6c3
+        name: 'ML3: Drive {#SNMPINDEX}: Assigned WWN'
+        type: DEPENDENT
+        key: ml3.drive.config.assigned_wwn[{#SNMPINDEX}]
+        delay: '0'
+        history: 30d
+        trends: '0'
+        value_type: CHAR
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.2.6.257.1.5.2.1.26.{#SNMPINDEX}
+          - '0'
+        - type: DISCARD_UNCHANGED_HEARTBEAT
+          parameters:
+          - 1d
+        master_item:
+          key: ml3.ibm.drive.config.walk
+        tags:
+        - tag: component
+          value: drive
+      graph_prototypes:
+      - uuid: 93915c6cee52423c9e2a45f24cc8d328
+        name: 'ML3: Drive {#SNMPINDEX}: FC port state and speed enums'
+        height: '220'
+        graph_items:
+        - sortorder: '0'
+          color: 199C0D
+          item:
+            host: IBM ML3 Tape Library by SNMP
+            key: ml3.drive.config.port0_state[{#SNMPINDEX}]
+        - sortorder: '1'
+          color: F63100
+          item:
+            host: IBM ML3 Tape Library by SNMP
+            key: ml3.drive.config.port1_state[{#SNMPINDEX}]
+        - sortorder: '2'
+          color: 00611C
+          item:
+            host: IBM ML3 Tape Library by SNMP
+            key: ml3.drive.config.port0_speed_actual[{#SNMPINDEX}]
+        - sortorder: '3'
+          color: F7941D
+          item:
+            host: IBM ML3 Tape Library by SNMP
+            key: ml3.drive.config.port1_speed_actual[{#SNMPINDEX}]
+      - uuid: dfc8efa6a3454b359d6661c18d28e7ce
+        name: 'ML3: Drive {#SNMPINDEX}: Position and logical library'
+        height: '220'
+        graph_items:
+        - sortorder: '0'
+          color: 2774A4
+          item:
+            host: IBM ML3 Tape Library by SNMP
+            key: ml3.drive.config.frame[{#SNMPINDEX}]
+        - sortorder: '1'
+          color: A54F10
+          item:
+            host: IBM ML3 Tape Library by SNMP
+            key: ml3.drive.config.column[{#SNMPINDEX}]
+        - sortorder: '2'
+          color: FC6EA3
+          item:
+            host: IBM ML3 Tape Library by SNMP
+            key: ml3.drive.config.row[{#SNMPINDEX}]
+        - sortorder: '3'
+          color: 6C59DC
+          item:
+            host: IBM ML3 Tape Library by SNMP
+            key: ml3.drive.config.logical_library[{#SNMPINDEX}]
+    - uuid: e9a2a46a255f4f1dbe7813afb46f11e4
+      name: 'ML3: SNIA sub chassis discovery'
+      type: DEPENDENT
+      key: ml3.snia.subchassis.discovery
+      delay: '0'
+      lifetime: 30d
+      enabled_lifetime: 7d
+      description: Discovery of SNIA-SML-MIB subChassisTable.
+      preprocessing:
+      - type: SNMP_WALK_TO_JSON
+        parameters:
+        - '{#SUBCHASSISIDX}'
+        - 1.3.6.1.4.1.14851.3.1.4.10.1.1
+        - '0'
+        - '{#SUBCHASSISNAME}'
+        - 1.3.6.1.4.1.14851.3.1.4.10.1.9
+        - '0'
+      master_item:
+        key: ml3.snia.subchassis.walk
+      item_prototypes:
+      - uuid: 1d339e79dde84e5b957ae4ac58c0870f
+        name: 'ML3: Sub chassis {#SNMPINDEX}: Manufacturer'
+        type: DEPENDENT
+        key: ml3.subchassis.manufacturer[{#SNMPINDEX}]
+        delay: '0'
+        history: 30d
+        trends: '0'
+        value_type: CHAR
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.14851.3.1.4.10.1.2.{#SNMPINDEX}
+          - '0'
+        - type: DISCARD_UNCHANGED_HEARTBEAT
+          parameters:
+          - 1d
+        master_item:
+          key: ml3.snia.subchassis.walk
+        tags:
+        - tag: component
+          value: chassis
+      - uuid: 9a46e0e1a1f740cf868a7edfae2c9cdb
+        name: 'ML3: Sub chassis {#SNMPINDEX}: Model'
+        type: DEPENDENT
+        key: ml3.subchassis.model[{#SNMPINDEX}]
+        delay: '0'
+        history: 30d
+        trends: '0'
+        value_type: CHAR
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.14851.3.1.4.10.1.3.{#SNMPINDEX}
+          - '0'
+        - type: DISCARD_UNCHANGED_HEARTBEAT
+          parameters:
+          - 1d
+        master_item:
+          key: ml3.snia.subchassis.walk
+        tags:
+        - tag: component
+          value: chassis
+      - uuid: 820da820d5294c7ead969ec3e37f3c26
+        name: 'ML3: Sub chassis {#SNMPINDEX}: Serial number'
+        type: DEPENDENT
+        key: ml3.subchassis.serial[{#SNMPINDEX}]
+        delay: '0'
+        history: 30d
+        trends: '0'
+        value_type: CHAR
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.14851.3.1.4.10.1.4.{#SNMPINDEX}
+          - '0'
+        - type: DISCARD_UNCHANGED_HEARTBEAT
+          parameters:
+          - 1d
+        master_item:
+          key: ml3.snia.subchassis.walk
+        tags:
+        - tag: component
+          value: chassis
+      - uuid: 1d68409313de4bdb95489f1e903834f2
+        name: 'ML3: Sub chassis {#SNMPINDEX}: Security breach'
+        type: DEPENDENT
+        key: ml3.subchassis.security_breach[{#SNMPINDEX}]
+        delay: '0'
+        history: 30d
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.14851.3.1.4.10.1.6.{#SNMPINDEX}
+          - '0'
+        master_item:
+          key: ml3.snia.subchassis.walk
+        valuemap:
+          name: SNIA-SML-MIB::SecurityBreach
+        tags:
+        - tag: component
+          value: security
+      - uuid: 532f6a137f1e40afa1677dda60059cab
+        name: 'ML3: Sub chassis {#SNMPINDEX}: Is locked'
+        type: DEPENDENT
+        key: ml3.subchassis.is_locked[{#SNMPINDEX}]
+        delay: '0'
+        history: 30d
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.14851.3.1.4.10.1.7.{#SNMPINDEX}
+          - '0'
+        master_item:
+          key: ml3.snia.subchassis.walk
+        valuemap:
+          name: SNIA-SML-MIB::TruthValue
+        tags:
+        - tag: component
+          value: security
+      - uuid: ce5126fbc5814a56a87deab16ec5dca5
+        name: 'ML3: Sub chassis {#SNMPINDEX}: Element name'
+        type: DEPENDENT
+        key: ml3.subchassis.element_name[{#SNMPINDEX}]
+        delay: '0'
+        history: 30d
+        trends: '0'
+        value_type: CHAR
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.14851.3.1.4.10.1.9.{#SNMPINDEX}
+          - '0'
+        - type: DISCARD_UNCHANGED_HEARTBEAT
+          parameters:
+          - 1d
+        master_item:
+          key: ml3.snia.subchassis.walk
+        tags:
+        - tag: component
+          value: chassis
+      - uuid: 113d9c2ab2aa457181cf95a824c60375
+        name: 'ML3: Sub chassis {#SNMPINDEX}: Operational status'
+        type: DEPENDENT
+        key: ml3.subchassis.operational_status[{#SNMPINDEX}]
+        delay: '0'
+        history: 30d
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.14851.3.1.4.10.1.10.{#SNMPINDEX}
+          - '0'
+        master_item:
+          key: ml3.snia.subchassis.walk
+        valuemap:
+          name: SNIA-SML-MIB::OperationalStatus
+        tags:
+        - tag: component
+          value: health
+        trigger_prototypes:
+        - uuid: 096ab7126f44478a99b1f4124d52d9c7
+          expression: last(/IBM ML3 Tape Library by SNMP/ml3.subchassis.operational_status[{#SNMPINDEX}])<>2
+          name: 'ML3: Sub chassis {#SNMPINDEX}: Operational status is not OK'
+          priority: AVERAGE
+          opdata: 'Current status: {ITEM.LASTVALUE1}'
+          tags:
+          - tag: scope
+            value: availability
+      graph_prototypes:
+      - uuid: e41dd244fa5b4239a63ea556ca9869f7
+        name: 'ML3: Sub chassis {#SNMPINDEX}: Health and security'
+        height: '200'
+        graph_items:
+        - sortorder: '0'
+          color: 199C0D
+          item:
+            host: IBM ML3 Tape Library by SNMP
+            key: ml3.subchassis.operational_status[{#SNMPINDEX}]
+        - sortorder: '1'
+          color: F63100
+          item:
+            host: IBM ML3 Tape Library by SNMP
+            key: ml3.subchassis.security_breach[{#SNMPINDEX}]
+        - sortorder: '2'
+          color: 00611C
+          item:
+            host: IBM ML3 Tape Library by SNMP
+            key: ml3.subchassis.is_locked[{#SNMPINDEX}]
+    - uuid: 49f95ba2236d4a189c962ec0d2707aa9
+      name: 'ML3: SNIA media access device discovery'
+      type: DEPENDENT
+      key: ml3.snia.media_access_device.discovery
+      delay: '0'
+      lifetime: 30d
+      enabled_lifetime: 7d
+      description: Discovery of drive/media access device health from SNIA-SML-MIB::mediaAccessDeviceTable.
+      preprocessing:
+      - type: SNMP_WALK_TO_JSON
+        parameters:
+        - '{#MADIDX}'
+        - 1.3.6.1.4.1.14851.3.1.6.2.1.1
+        - '0'
+        - '{#MADNAME}'
+        - 1.3.6.1.4.1.14851.3.1.6.2.1.3
+        - '0'
+        - '{#MADDEVICEID}'
+        - 1.3.6.1.4.1.14851.3.1.6.2.1.8
+        - '0'
+      master_item:
+        key: ml3.snia.media_access_device.walk
+      item_prototypes:
+      - uuid: 39d0a374d25d4817b38ff8cabfa154be
+        name: 'ML3: Drive {#SNMPINDEX}: Name'
+        type: DEPENDENT
+        key: ml3.drive.name[{#SNMPINDEX}]
+        delay: '0'
+        history: 30d
+        trends: '0'
+        value_type: CHAR
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.14851.3.1.6.2.1.3.{#SNMPINDEX}
+          - '0'
+        - type: DISCARD_UNCHANGED_HEARTBEAT
+          parameters:
+          - 1d
+        master_item:
+          key: ml3.snia.media_access_device.walk
+        tags:
+        - tag: component
+          value: drive
+      - uuid: 9ee3bb9718294f00b49e09daab40cff3
+        name: 'ML3: Drive {#SNMPINDEX}: Status text'
+        type: DEPENDENT
+        key: ml3.drive.status_text[{#SNMPINDEX}]
+        delay: '0'
+        history: 30d
+        trends: '0'
+        value_type: CHAR
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.14851.3.1.6.2.1.4.{#SNMPINDEX}
+          - '0'
+        master_item:
+          key: ml3.snia.media_access_device.walk
+        tags:
+        - tag: component
+          value: health
+      - uuid: 648977daf34f4574b07dc11604f06a63
+        name: 'ML3: Drive {#SNMPINDEX}: Availability'
+        type: DEPENDENT
+        key: ml3.drive.availability[{#SNMPINDEX}]
+        delay: '0'
+        history: 30d
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.14851.3.1.6.2.1.5.{#SNMPINDEX}
+          - '0'
+        master_item:
+          key: ml3.snia.media_access_device.walk
+        valuemap:
+          name: SNIA-SML-MIB::Availability
+        tags:
+        - tag: component
+          value: health
+      - uuid: 89baa72c905840bdac41385078b71960
+        name: 'ML3: Drive {#SNMPINDEX}: Needs cleaning'
+        type: DEPENDENT
+        key: ml3.drive.needs_cleaning[{#SNMPINDEX}]
+        delay: '0'
+        history: 30d
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.14851.3.1.6.2.1.6.{#SNMPINDEX}
+          - '0'
+        master_item:
+          key: ml3.snia.media_access_device.walk
+        valuemap:
+          name: SNIA-SML-MIB::TruthValue
+        tags:
+        - tag: component
+          value: drive
+        trigger_prototypes:
+        - uuid: 81b93eb34e084dad9816e0265f907833
+          expression: last(/IBM ML3 Tape Library by SNMP/ml3.drive.needs_cleaning[{#SNMPINDEX}])=1
+          name: 'ML3: Drive {#SNMPINDEX}: Cleaning is required'
+          priority: WARNING
+          opdata: 'Needs cleaning: {ITEM.LASTVALUE1}'
+          description: SNIA-SML-MIB mediaAccessDevice-NeedsCleaning returned true(1).
+          tags:
+          - tag: scope
+            value: notice
+      - uuid: 5f033fc515584e3b8033ba4e0ecdbccc
+        name: 'ML3: Drive {#SNMPINDEX}: Device ID'
+        type: DEPENDENT
+        key: ml3.drive.device_id[{#SNMPINDEX}]
+        delay: '0'
+        history: 30d
+        trends: '0'
+        value_type: CHAR
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.14851.3.1.6.2.1.8.{#SNMPINDEX}
+          - '0'
+        - type: DISCARD_UNCHANGED_HEARTBEAT
+          parameters:
+          - 1d
+        master_item:
+          key: ml3.snia.media_access_device.walk
+        tags:
+        - tag: component
+          value: drive
+      - uuid: 0684d6e408154a4783ab1f2ad183ab3f
+        name: 'ML3: Drive {#SNMPINDEX}: Operational status'
+        type: DEPENDENT
+        key: ml3.drive.operational_status[{#SNMPINDEX}]
+        delay: '0'
+        history: 30d
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.14851.3.1.6.2.1.11.{#SNMPINDEX}
+          - '0'
+        master_item:
+          key: ml3.snia.media_access_device.walk
+        valuemap:
+          name: SNIA-SML-MIB::OperationalStatus
+        tags:
+        - tag: component
+          value: health
+        trigger_prototypes:
+        - uuid: 9f7114fdf56e4dedb219b6cfa0e59d8d
+          expression: last(/IBM ML3 Tape Library by SNMP/ml3.drive.operational_status[{#SNMPINDEX}])<>2
+          name: 'ML3: Drive {#SNMPINDEX}: Operational status is not OK'
+          priority: HIGH
+          opdata: 'Current status: {ITEM.LASTVALUE1}'
+          tags:
+          - tag: scope
+            value: availability
+      - uuid: ed2151bb32334916a6237708cdbd1092
+        name: 'ML3: Drive {#SNMPINDEX}: Storage location index'
+        type: DEPENDENT
+        key: ml3.drive.storage_location_index[{#SNMPINDEX}]
+        delay: '0'
+        history: 30d
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.14851.3.1.6.2.1.12.{#SNMPINDEX}
+          - '0'
+        master_item:
+          key: ml3.snia.media_access_device.walk
+        tags:
+        - tag: component
+          value: drive
+      - uuid: ebcce8e649c24cf6946b59db84fdf655
+        name: 'ML3: Drive {#SNMPINDEX}: Software element index'
+        type: DEPENDENT
+        key: ml3.drive.software_element_index[{#SNMPINDEX}]
+        delay: '0'
+        history: 30d
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.14851.3.1.6.2.1.13.{#SNMPINDEX}
+          - '0'
+        master_item:
+          key: ml3.snia.media_access_device.walk
+        tags:
+        - tag: component
+          value: firmware
+      graph_prototypes:
+      - uuid: 50fa111f85944e7bb3bc3fe9e30eccee
+        name: 'ML3: Drive {#SNMPINDEX}: Health'
+        height: '200'
+        graph_items:
+        - sortorder: '0'
+          color: 199C0D
+          item:
+            host: IBM ML3 Tape Library by SNMP
+            key: ml3.drive.availability[{#SNMPINDEX}]
+        - sortorder: '1'
+          color: F63100
+          item:
+            host: IBM ML3 Tape Library by SNMP
+            key: ml3.drive.needs_cleaning[{#SNMPINDEX}]
+        - sortorder: '2'
+          color: 00611C
+          item:
+            host: IBM ML3 Tape Library by SNMP
+            key: ml3.drive.operational_status[{#SNMPINDEX}]
+      - uuid: 833f3ea670f24df8b91c7ead28eb2263
+        name: 'ML3: Drive {#SNMPINDEX}: Related indexes'
+        height: '200'
+        graph_items:
+        - sortorder: '0'
+          color: 2774A4
+          item:
+            host: IBM ML3 Tape Library by SNMP
+            key: ml3.drive.storage_location_index[{#SNMPINDEX}]
+        - sortorder: '1'
+          color: A54F10
+          item:
+            host: IBM ML3 Tape Library by SNMP
+            key: ml3.drive.software_element_index[{#SNMPINDEX}]
+    - uuid: 2955627e4ec844f68a7860c0ffde8f4a
+      name: 'ML3: SNIA changer device discovery'
+      type: DEPENDENT
+      key: ml3.snia.changer_device.discovery
+      delay: '0'
+      lifetime: 30d
+      enabled_lifetime: 7d
+      description: Discovery of robot/changer devices from SNIA-SML-MIB::changerDeviceTable.
+      preprocessing:
+      - type: SNMP_WALK_TO_JSON
+        parameters:
+        - '{#CHANGERIDX}'
+        - 1.3.6.1.4.1.14851.3.1.11.2.1.1
+        - '0'
+        - '{#CHANGERNAME}'
+        - 1.3.6.1.4.1.14851.3.1.11.2.1.4
+        - '0'
+      master_item:
+        key: ml3.snia.changer_device.walk
+      item_prototypes:
+      - uuid: 026552fa2bfc414fb0a4caaed52835a3
+        name: 'ML3: Changer {#SNMPINDEX}: Device ID'
+        type: DEPENDENT
+        key: ml3.changer.device_id[{#SNMPINDEX}]
+        delay: '0'
+        history: 30d
+        trends: '0'
+        value_type: CHAR
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.14851.3.1.11.2.1.2.{#SNMPINDEX}
+          - '0'
+        - type: DISCARD_UNCHANGED_HEARTBEAT
+          parameters:
+          - 1d
+        master_item:
+          key: ml3.snia.changer_device.walk
+        tags:
+        - tag: component
+          value: changer
+      - uuid: be7e2ab72d604ec38aaec4d3dff9007b
+        name: 'ML3: Changer {#SNMPINDEX}: Element name'
+        type: DEPENDENT
+        key: ml3.changer.element_name[{#SNMPINDEX}]
+        delay: '0'
+        history: 30d
+        trends: '0'
+        value_type: CHAR
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.14851.3.1.11.2.1.4.{#SNMPINDEX}
+          - '0'
+        - type: DISCARD_UNCHANGED_HEARTBEAT
+          parameters:
+          - 1d
+        master_item:
+          key: ml3.snia.changer_device.walk
+        tags:
+        - tag: component
+          value: changer
+      - uuid: f36dc767061c451eac42a4f3b100f030
+        name: 'ML3: Changer {#SNMPINDEX}: Availability'
+        type: DEPENDENT
+        key: ml3.changer.availability[{#SNMPINDEX}]
+        delay: '0'
+        history: 30d
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.14851.3.1.11.2.1.8.{#SNMPINDEX}
+          - '0'
+        master_item:
+          key: ml3.snia.changer_device.walk
+        valuemap:
+          name: SNIA-SML-MIB::Availability
+        tags:
+        - tag: component
+          value: health
+      - uuid: a681ce3cda33492ea18133d829d7d5ad
+        name: 'ML3: Changer {#SNMPINDEX}: Operational status'
+        type: DEPENDENT
+        key: ml3.changer.operational_status[{#SNMPINDEX}]
+        delay: '0'
+        history: 30d
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.14851.3.1.11.2.1.9.{#SNMPINDEX}
+          - '0'
+        master_item:
+          key: ml3.snia.changer_device.walk
+        valuemap:
+          name: SNIA-SML-MIB::OperationalStatus
+        tags:
+        - tag: component
+          value: health
+        trigger_prototypes:
+        - uuid: bc1b12b732724aaaa863b27493a7ca2b
+          expression: last(/IBM ML3 Tape Library by SNMP/ml3.changer.operational_status[{#SNMPINDEX}])<>2
+          name: 'ML3: Changer {#SNMPINDEX}: Operational status is not OK'
+          priority: HIGH
+          opdata: 'Current status: {ITEM.LASTVALUE1}'
+          tags:
+          - tag: scope
+            value: availability
+      - uuid: fb093eea5e944601a01e095775d1e130
+        name: 'ML3: Changer {#SNMPINDEX}: Storage location index'
+        type: DEPENDENT
+        key: ml3.changer.storage_location_index[{#SNMPINDEX}]
+        delay: '0'
+        history: 30d
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.14851.3.1.11.2.1.10.{#SNMPINDEX}
+          - '0'
+        master_item:
+          key: ml3.snia.changer_device.walk
+        tags:
+        - tag: component
+          value: changer
+      graph_prototypes:
+      - uuid: 4ab74e45c8064d41b358a0aee088ee27
+        name: 'ML3: Changer {#SNMPINDEX}: Health'
+        height: '200'
+        graph_items:
+        - sortorder: '0'
+          color: 199C0D
+          item:
+            host: IBM ML3 Tape Library by SNMP
+            key: ml3.changer.availability[{#SNMPINDEX}]
+        - sortorder: '1'
+          color: F63100
+          item:
+            host: IBM ML3 Tape Library by SNMP
+            key: ml3.changer.operational_status[{#SNMPINDEX}]
+        - sortorder: '2'
+          color: 00611C
+          item:
+            host: IBM ML3 Tape Library by SNMP
+            key: ml3.changer.storage_location_index[{#SNMPINDEX}]
+    - uuid: 6121122552cd4bf38ece38fd1a90aef1
+      name: 'ML3: SNIA SCSI controller discovery'
+      type: DEPENDENT
+      key: ml3.snia.scsi_controller.discovery
+      delay: '0'
+      lifetime: 30d
+      enabled_lifetime: 7d
+      description: Discovery of SNIA-SML-MIB::scsiProtocolControllerTable.
+      preprocessing:
+      - type: SNMP_WALK_TO_JSON
+        parameters:
+        - '{#SCSIIDX}'
+        - 1.3.6.1.4.1.14851.3.1.12.2.1.1
+        - '0'
+        - '{#SCSINAME}'
+        - 1.3.6.1.4.1.14851.3.1.12.2.1.3
+        - '0'
+      master_item:
+        key: ml3.snia.scsi_controller.walk
+      item_prototypes:
+      - uuid: ace286de34014c8686c340706b725f12
+        name: 'ML3: SCSI controller {#SNMPINDEX}: Device ID'
+        type: DEPENDENT
+        key: ml3.scsi.device_id[{#SNMPINDEX}]
+        delay: '0'
+        history: 30d
+        trends: '0'
+        value_type: CHAR
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.14851.3.1.12.2.1.2.{#SNMPINDEX}
+          - '0'
+        - type: DISCARD_UNCHANGED_HEARTBEAT
+          parameters:
+          - 1d
+        master_item:
+          key: ml3.snia.scsi_controller.walk
+        tags:
+        - tag: component
+          value: controller
+      - uuid: 57e57a0c327c4ccc907d1b682adfe61e
+        name: 'ML3: SCSI controller {#SNMPINDEX}: Element name'
+        type: DEPENDENT
+        key: ml3.scsi.element_name[{#SNMPINDEX}]
+        delay: '0'
+        history: 30d
+        trends: '0'
+        value_type: CHAR
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.14851.3.1.12.2.1.3.{#SNMPINDEX}
+          - '0'
+        - type: DISCARD_UNCHANGED_HEARTBEAT
+          parameters:
+          - 1d
+        master_item:
+          key: ml3.snia.scsi_controller.walk
+        tags:
+        - tag: component
+          value: controller
+      - uuid: 0d2f7a4a29064762b73defc25682663d
+        name: 'ML3: SCSI controller {#SNMPINDEX}: Availability'
+        type: DEPENDENT
+        key: ml3.scsi.availability[{#SNMPINDEX}]
+        delay: '0'
+        history: 30d
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.14851.3.1.12.2.1.6.{#SNMPINDEX}
+          - '0'
+        master_item:
+          key: ml3.snia.scsi_controller.walk
+        valuemap:
+          name: SNIA-SML-MIB::Availability
+        tags:
+        - tag: component
+          value: health
+      - uuid: 9f51d5f99375434db9051f5ac6740fb6
+        name: 'ML3: SCSI controller {#SNMPINDEX}: Operational status'
+        type: DEPENDENT
+        key: ml3.scsi.operational_status[{#SNMPINDEX}]
+        delay: '0'
+        history: 30d
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.14851.3.1.12.2.1.4.{#SNMPINDEX}
+          - '0'
+        master_item:
+          key: ml3.snia.scsi_controller.walk
+        valuemap:
+          name: SNIA-SML-MIB::OperationalStatus
+        tags:
+        - tag: component
+          value: health
+        trigger_prototypes:
+        - uuid: 4517cd4c50254f4293c51e25477f0a8d
+          expression: last(/IBM ML3 Tape Library by SNMP/ml3.scsi.operational_status[{#SNMPINDEX}])<>2
+          name: 'ML3: SCSI controller {#SNMPINDEX}: Operational status is not OK'
+          priority: AVERAGE
+          opdata: 'Current status: {ITEM.LASTVALUE1}'
+          tags:
+          - tag: scope
+            value: availability
+      - uuid: 7ce5a7388af14dfda49ce20e96c7792c
+        name: 'ML3: SCSI controller {#SNMPINDEX}: Realizes changer index'
+        type: DEPENDENT
+        key: ml3.scsi.changer_index[{#SNMPINDEX}]
+        delay: '0'
+        history: 30d
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.14851.3.1.12.2.1.7.{#SNMPINDEX}
+          - '0'
+        master_item:
+          key: ml3.snia.scsi_controller.walk
+        tags:
+        - tag: component
+          value: controller
+      - uuid: 717f23f6d5314d34a270c0451ff2256f
+        name: 'ML3: SCSI controller {#SNMPINDEX}: Realizes drive index'
+        type: DEPENDENT
+        key: ml3.scsi.drive_index[{#SNMPINDEX}]
+        delay: '0'
+        history: 30d
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.14851.3.1.12.2.1.8.{#SNMPINDEX}
+          - '0'
+        master_item:
+          key: ml3.snia.scsi_controller.walk
+        tags:
+        - tag: component
+          value: controller
+      graph_prototypes:
+      - uuid: 44d7953549d242048adf9b77b5c7a8c9
+        name: 'ML3: SCSI controller {#SNMPINDEX}: Health and mapping'
+        height: '220'
+        graph_items:
+        - sortorder: '0'
+          color: 199C0D
+          item:
+            host: IBM ML3 Tape Library by SNMP
+            key: ml3.scsi.availability[{#SNMPINDEX}]
+        - sortorder: '1'
+          color: F63100
+          item:
+            host: IBM ML3 Tape Library by SNMP
+            key: ml3.scsi.operational_status[{#SNMPINDEX}]
+        - sortorder: '2'
+          color: 00611C
+          item:
+            host: IBM ML3 Tape Library by SNMP
+            key: ml3.scsi.changer_index[{#SNMPINDEX}]
+        - sortorder: '3'
+          color: F7941D
+          item:
+            host: IBM ML3 Tape Library by SNMP
+            key: ml3.scsi.drive_index[{#SNMPINDEX}]
+    - uuid: 77735d0a69a24e95ace75c86d164edce
+      name: 'ML3: SNIA FC port discovery'
+      type: DEPENDENT
+      key: ml3.snia.fc_port.discovery
+      delay: '0'
+      lifetime: 30d
+      enabled_lifetime: 7d
+      description: Discovery of Fibre Channel ports from SNIA-SML-MIB::fCPortTable.
+      preprocessing:
+      - type: SNMP_WALK_TO_JSON
+        parameters:
+        - '{#FCPORTIDX}'
+        - 1.3.6.1.4.1.14851.3.1.15.2.1.1
+        - '0'
+        - '{#FCPORTNAME}'
+        - 1.3.6.1.4.1.14851.3.1.15.2.1.3
+        - '0'
+      master_item:
+        key: ml3.snia.fc_port.walk
+      item_prototypes:
+      - uuid: bcf7bf0934a34158986da9dcd9f69386
+        name: 'ML3: FC port {#SNMPINDEX}: Device ID'
+        type: DEPENDENT
+        key: ml3.fc_port.device_id[{#SNMPINDEX}]
+        delay: '0'
+        history: 30d
+        trends: '0'
+        value_type: CHAR
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.14851.3.1.15.2.1.2.{#SNMPINDEX}
+          - '0'
+        - type: DISCARD_UNCHANGED_HEARTBEAT
+          parameters:
+          - 1d
+        master_item:
+          key: ml3.snia.fc_port.walk
+        tags:
+        - tag: component
+          value: port
+      - uuid: f536016def2d47009c1de10f7d47c094
+        name: 'ML3: FC port {#SNMPINDEX}: Element name'
+        type: DEPENDENT
+        key: ml3.fc_port.element_name[{#SNMPINDEX}]
+        delay: '0'
+        history: 30d
+        trends: '0'
+        value_type: CHAR
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.14851.3.1.15.2.1.3.{#SNMPINDEX}
+          - '0'
+        - type: DISCARD_UNCHANGED_HEARTBEAT
+          parameters:
+          - 1d
+        master_item:
+          key: ml3.snia.fc_port.walk
+        tags:
+        - tag: component
+          value: port
+      - uuid: 70514b6051c3430dba47034ca0713a39
+        name: 'ML3: FC port {#SNMPINDEX}: Permanent address'
+        type: DEPENDENT
+        key: ml3.fc_port.permanent_address[{#SNMPINDEX}]
+        delay: '0'
+        history: 30d
+        trends: '0'
+        value_type: CHAR
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.14851.3.1.15.2.1.7.{#SNMPINDEX}
+          - '0'
+        - type: DISCARD_UNCHANGED_HEARTBEAT
+          parameters:
+          - 1d
+        master_item:
+          key: ml3.snia.fc_port.walk
+        tags:
+        - tag: component
+          value: port
+      - uuid: 640004477cf7430b9bb316155cee3e67
+        name: 'ML3: FC port {#SNMPINDEX}: Operational status'
+        type: DEPENDENT
+        key: ml3.fc_port.operational_status[{#SNMPINDEX}]
+        delay: '0'
+        history: 30d
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.14851.3.1.15.2.1.6.{#SNMPINDEX}
+          - '0'
+        master_item:
+          key: ml3.snia.fc_port.walk
+        valuemap:
+          name: SNIA-SML-MIB::OperationalStatus
+        tags:
+        - tag: component
+          value: health
+        trigger_prototypes:
+        - uuid: 6b02034c9ba342329c683dcd12d5c27b
+          expression: last(/IBM ML3 Tape Library by SNMP/ml3.fc_port.operational_status[{#SNMPINDEX}])<>2
+          name: 'ML3: FC port {#SNMPINDEX}: Operational status is not OK'
+          priority: AVERAGE
+          opdata: 'Current status: {ITEM.LASTVALUE1}'
+          tags:
+          - tag: scope
+            value: availability
+      - uuid: 1c65fa57195740458f89c66cbff59c08
+        name: 'ML3: FC port {#SNMPINDEX}: SCSI controller index'
+        type: DEPENDENT
+        key: ml3.fc_port.scsi_controller_index[{#SNMPINDEX}]
+        delay: '0'
+        history: 30d
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.14851.3.1.15.2.1.8.{#SNMPINDEX}
+          - '0'
+        master_item:
+          key: ml3.snia.fc_port.walk
+        tags:
+        - tag: component
+          value: port
+      graph_prototypes:
+      - uuid: 4f9948ffad334215804eda1232a2b05f
+        name: 'ML3: FC port {#SNMPINDEX}: Health and controller mapping'
+        height: '200'
+        graph_items:
+        - sortorder: '0'
+          color: 199C0D
+          item:
+            host: IBM ML3 Tape Library by SNMP
+            key: ml3.fc_port.operational_status[{#SNMPINDEX}]
+        - sortorder: '1'
+          color: F63100
+          item:
+            host: IBM ML3 Tape Library by SNMP
+            key: ml3.fc_port.scsi_controller_index[{#SNMPINDEX}]
+    - uuid: fc4e6bd9458947e8b1dcd537ebe94003
+      name: 'ML3: SNIA storage media location discovery'
+      type: DEPENDENT
+      key: ml3.snia.storage_location.discovery
+      delay: '0'
+      lifetime: 60d
+      enabled_lifetime: 14d
+      description: Discovery of slots and storage locations from SNIA-SML-MIB::storageMediaLocationTable.
+      preprocessing:
+      - type: SNMP_WALK_TO_JSON
+        parameters:
+        - '{#SLOTIDX}'
+        - 1.3.6.1.4.1.14851.3.1.13.3.1.1
+        - '0'
+        - '{#SLOTCOORD}'
+        - 1.3.6.1.4.1.14851.3.1.13.3.1.4
+        - '0'
+        - '{#SLOTTAG}'
+        - 1.3.6.1.4.1.14851.3.1.13.3.1.2
+        - '0'
+      master_item:
+        key: ml3.snia.storage_location.walk
+      item_prototypes:
+      - uuid: 54efe8ad609e4bf492b0aabef9afed67
+        name: 'ML3: Slot {#SNMPINDEX}: Tag'
+        type: DEPENDENT
+        key: ml3.slot.tag[{#SNMPINDEX}]
+        delay: '0'
+        history: 30d
+        trends: '0'
+        value_type: CHAR
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.14851.3.1.13.3.1.2.{#SNMPINDEX}
+          - '0'
+        - type: DISCARD_UNCHANGED_HEARTBEAT
+          parameters:
+          - 1d
+        master_item:
+          key: ml3.snia.storage_location.walk
+        tags:
+        - tag: component
+          value: slot
+      - uuid: 18008eacb8ae4bdaa3152d20880a29f2
+        name: 'ML3: Slot {#SNMPINDEX}: Location type'
+        type: DEPENDENT
+        key: ml3.slot.location_type[{#SNMPINDEX}]
+        delay: '0'
+        history: 30d
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.14851.3.1.13.3.1.3.{#SNMPINDEX}
+          - '0'
+        master_item:
+          key: ml3.snia.storage_location.walk
+        valuemap:
+          name: SNIA-SML-MIB::LocationType
+        tags:
+        - tag: component
+          value: slot
+      - uuid: c7d4a5283c8e4fe7b04f8133b79901d5
+        name: 'ML3: Slot {#SNMPINDEX}: Coordinates'
+        type: DEPENDENT
+        key: ml3.slot.coordinates[{#SNMPINDEX}]
+        delay: '0'
+        history: 30d
+        trends: '0'
+        value_type: CHAR
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.14851.3.1.13.3.1.4.{#SNMPINDEX}
+          - '0'
+        - type: DISCARD_UNCHANGED_HEARTBEAT
+          parameters:
+          - 1d
+        master_item:
+          key: ml3.snia.storage_location.walk
+        tags:
+        - tag: component
+          value: slot
+      - uuid: 58cbc390f58542b19a7ef9b925635af9
+        name: 'ML3: Slot {#SNMPINDEX}: Media capacity'
+        type: DEPENDENT
+        key: ml3.slot.media_capacity[{#SNMPINDEX}]
+        delay: '0'
+        history: 30d
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.14851.3.1.13.3.1.6.{#SNMPINDEX}
+          - '0'
+        master_item:
+          key: ml3.snia.storage_location.walk
+        tags:
+        - tag: component
+          value: slot
+      - uuid: fd4b2b7de6014a38aeb8693a6509b7c6
+        name: 'ML3: Slot {#SNMPINDEX}: Changer index'
+        type: DEPENDENT
+        key: ml3.slot.changer_index[{#SNMPINDEX}]
+        delay: '0'
+        history: 30d
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.14851.3.1.13.3.1.7.{#SNMPINDEX}
+          - '0'
+        master_item:
+          key: ml3.snia.storage_location.walk
+        tags:
+        - tag: component
+          value: slot
+      - uuid: 6f1d819f4ce64619bb343d0a8097e650
+        name: 'ML3: Slot {#SNMPINDEX}: Physical media present'
+        type: DEPENDENT
+        key: ml3.slot.media_present[{#SNMPINDEX}]
+        delay: '0'
+        history: 30d
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.14851.3.1.13.3.1.10.{#SNMPINDEX}
+          - '0'
+        master_item:
+          key: ml3.snia.storage_location.walk
+        valuemap:
+          name: SNIA-SML-MIB::TruthValue
+        tags:
+        - tag: component
+          value: media
+      - uuid: 85f13cb76e024272bcd4723a14e29442
+        name: 'ML3: Slot {#SNMPINDEX}: Physical media type'
+        type: DEPENDENT
+        key: ml3.slot.media_type[{#SNMPINDEX}]
+        delay: '0'
+        history: 30d
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.14851.3.1.13.3.1.15.{#SNMPINDEX}
+          - '0'
+        master_item:
+          key: ml3.snia.storage_location.walk
+        tags:
+        - tag: component
+          value: media
+      - uuid: 92a33863b0e34f38801f47c9085778ab
+        name: 'ML3: Slot {#SNMPINDEX}: Media description'
+        type: DEPENDENT
+        key: ml3.slot.media_description[{#SNMPINDEX}]
+        delay: '0'
+        history: 30d
+        trends: '0'
+        value_type: CHAR
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.14851.3.1.13.3.1.16.{#SNMPINDEX}
+          - '0'
+        - type: DISCARD_UNCHANGED_HEARTBEAT
+          parameters:
+          - 1d
+        master_item:
+          key: ml3.snia.storage_location.walk
+        tags:
+        - tag: component
+          value: media
+      - uuid: 2774cf20337d4d758c7c4e7d708553b3
+        name: 'ML3: Slot {#SNMPINDEX}: Cleaner media'
+        type: DEPENDENT
+        key: ml3.slot.cleaner_media[{#SNMPINDEX}]
+        delay: '0'
+        history: 30d
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.14851.3.1.13.3.1.17.{#SNMPINDEX}
+          - '0'
+        master_item:
+          key: ml3.snia.storage_location.walk
+        valuemap:
+          name: SNIA-SML-MIB::TruthValue
+        tags:
+        - tag: component
+          value: media
+      - uuid: f3016eb18a124b4981e603e4b5cd1d07
+        name: 'ML3: Slot {#SNMPINDEX}: Physical label'
+        type: DEPENDENT
+        key: ml3.slot.physical_label[{#SNMPINDEX}]
+        delay: '0'
+        history: 30d
+        trends: '0'
+        value_type: CHAR
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.14851.3.1.13.3.1.19.{#SNMPINDEX}
+          - '0'
+        - type: DISCARD_UNCHANGED_HEARTBEAT
+          parameters:
+          - 1d
+        master_item:
+          key: ml3.snia.storage_location.walk
+        tags:
+        - tag: component
+          value: media
+      - uuid: 364409ba06034cd88cd2a0456340f64f
+        name: 'ML3: Slot {#SNMPINDEX}: Physical media tag'
+        type: DEPENDENT
+        key: ml3.slot.physical_media_tag[{#SNMPINDEX}]
+        delay: '0'
+        history: 30d
+        trends: '0'
+        value_type: CHAR
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.14851.3.1.13.3.1.20.{#SNMPINDEX}
+          - '0'
+        - type: DISCARD_UNCHANGED_HEARTBEAT
+          parameters:
+          - 1d
+        master_item:
+          key: ml3.snia.storage_location.walk
+        tags:
+        - tag: component
+          value: media
+      graph_prototypes:
+      - uuid: 1350f4fe09764f358703e6f1ea1c31bb
+        name: 'ML3: Slot {#SNMPINDEX}: Media state'
+        height: '220'
+        graph_items:
+        - sortorder: '0'
+          color: 199C0D
+          item:
+            host: IBM ML3 Tape Library by SNMP
+            key: ml3.slot.location_type[{#SNMPINDEX}]
+        - sortorder: '1'
+          color: F63100
+          item:
+            host: IBM ML3 Tape Library by SNMP
+            key: ml3.slot.media_capacity[{#SNMPINDEX}]
+        - sortorder: '2'
+          color: 00611C
+          item:
+            host: IBM ML3 Tape Library by SNMP
+            key: ml3.slot.media_present[{#SNMPINDEX}]
+        - sortorder: '3'
+          color: F7941D
+          item:
+            host: IBM ML3 Tape Library by SNMP
+            key: ml3.slot.media_type[{#SNMPINDEX}]
+        - sortorder: '4'
+          color: 2774A4
+          item:
+            host: IBM ML3 Tape Library by SNMP
+            key: ml3.slot.cleaner_media[{#SNMPINDEX}]
+      - uuid: ed8f356f013b475aa91486a611f03d80
+        name: 'ML3: Slot {#SNMPINDEX}: Changer mapping'
+        height: '180'
+        graph_items:
+        - sortorder: '0'
+          color: A54F10
+          item:
+            host: IBM ML3 Tape Library by SNMP
+            key: ml3.slot.changer_index[{#SNMPINDEX}]
+    - uuid: 31b40cec2c9d4ca7aa4be2a161bb2a46
+      name: 'ML3: SNIA software element discovery'
+      type: DEPENDENT
+      key: ml3.snia.software_element.discovery
+      delay: '0'
+      lifetime: 30d
+      enabled_lifetime: 7d
+      description: Discovery of firmware/software elements from SNIA-SML-MIB::softwareElementTable.
+      preprocessing:
+      - type: SNMP_WALK_TO_JSON
+        parameters:
+        - '{#SOFTIDX}'
+        - 1.3.6.1.4.1.14851.3.1.9.2.1.1
+        - '0'
+        - '{#SOFTID}'
+        - 1.3.6.1.4.1.14851.3.1.9.2.1.4
+        - '0'
+      master_item:
+        key: ml3.snia.software_element.walk
+      item_prototypes:
+      - uuid: ae37cc5891b74bf7b5a8cfaf831d0f5b
+        name: 'ML3: Software {#SNMPINDEX}: Name'
+        type: DEPENDENT
+        key: ml3.software.name[{#SNMPINDEX}]
+        delay: '0'
+        history: 30d
+        trends: '0'
+        value_type: CHAR
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.14851.3.1.9.2.1.2.{#SNMPINDEX}
+          - '0'
+        - type: DISCARD_UNCHANGED_HEARTBEAT
+          parameters:
+          - 1d
+        master_item:
+          key: ml3.snia.software_element.walk
+        tags:
+        - tag: component
+          value: firmware
+      - uuid: 8a36ef8f22b64f0a9f189ce41e3d0c0b
+        name: 'ML3: Software {#SNMPINDEX}: Version'
+        type: DEPENDENT
+        key: ml3.software.version[{#SNMPINDEX}]
+        delay: '0'
+        history: 30d
+        trends: '0'
+        value_type: CHAR
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.14851.3.1.9.2.1.3.{#SNMPINDEX}
+          - '0'
+        - type: DISCARD_UNCHANGED_HEARTBEAT
+          parameters:
+          - 1d
+        master_item:
+          key: ml3.snia.software_element.walk
+        tags:
+        - tag: component
+          value: firmware
+      - uuid: 3e448c9e969e48f1a9a9a2e115f9a5d6
+        name: 'ML3: Software {#SNMPINDEX}: Software element ID'
+        type: DEPENDENT
+        key: ml3.software.element_id[{#SNMPINDEX}]
+        delay: '0'
+        history: 30d
+        trends: '0'
+        value_type: CHAR
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.14851.3.1.9.2.1.4.{#SNMPINDEX}
+          - '0'
+        - type: DISCARD_UNCHANGED_HEARTBEAT
+          parameters:
+          - 1d
+        master_item:
+          key: ml3.snia.software_element.walk
+        tags:
+        - tag: component
+          value: firmware
+      - uuid: 4638e7784dc446f99e3dcbb2cbe30570
+        name: 'ML3: Software {#SNMPINDEX}: Manufacturer'
+        type: DEPENDENT
+        key: ml3.software.manufacturer[{#SNMPINDEX}]
+        delay: '0'
+        history: 30d
+        trends: '0'
+        value_type: CHAR
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.14851.3.1.9.2.1.5.{#SNMPINDEX}
+          - '0'
+        - type: DISCARD_UNCHANGED_HEARTBEAT
+          parameters:
+          - 1d
+        master_item:
+          key: ml3.snia.software_element.walk
+        tags:
+        - tag: component
+          value: firmware
+      - uuid: 9ac7c2f01af04f16ae07db497a7a3351
+        name: 'ML3: Software {#SNMPINDEX}: Build number'
+        type: DEPENDENT
+        key: ml3.software.build[{#SNMPINDEX}]
+        delay: '0'
+        history: 30d
+        trends: '0'
+        value_type: CHAR
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.14851.3.1.9.2.1.6.{#SNMPINDEX}
+          - '0'
+        - type: DISCARD_UNCHANGED_HEARTBEAT
+          parameters:
+          - 1d
+        master_item:
+          key: ml3.snia.software_element.walk
+        tags:
+        - tag: component
+          value: firmware
+      - uuid: 31ddc21a06f247ac8e0deba7037b1eec
+        name: 'ML3: Software {#SNMPINDEX}: Serial number'
+        type: DEPENDENT
+        key: ml3.software.serial[{#SNMPINDEX}]
+        delay: '0'
+        history: 30d
+        trends: '0'
+        value_type: CHAR
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.14851.3.1.9.2.1.7.{#SNMPINDEX}
+          - '0'
+        - type: DISCARD_UNCHANGED_HEARTBEAT
+          parameters:
+          - 1d
+        master_item:
+          key: ml3.snia.software_element.walk
+        tags:
+        - tag: component
+          value: firmware
+      - uuid: af38d7fad64d41978657c398795bcdca
+        name: 'ML3: Software {#SNMPINDEX}: Instance ID'
+        type: DEPENDENT
+        key: ml3.software.instance_id[{#SNMPINDEX}]
+        delay: '0'
+        history: 30d
+        trends: '0'
+        value_type: CHAR
+        preprocessing:
+        - type: SNMP_WALK_VALUE
+          parameters:
+          - 1.3.6.1.4.1.14851.3.1.9.2.1.11.{#SNMPINDEX}
+          - '0'
+        - type: DISCARD_UNCHANGED_HEARTBEAT
+          parameters:
+          - 1d
+        master_item:
+          key: ml3.snia.software_element.walk
+        tags:
+        - tag: component
+          value: firmware
+    tags:
+    - tag: class
+      value: hardware
+    - tag: target
+      value: ibm-ml3
+    - tag: component
+      value: storage
+    macros:
+    - macro: '{$ML3.STATUS.OK}'
+      value: '2'
+      description: SNIA OperationalStatus value for ok.
+    valuemaps:
+    - uuid: fef4dfc3877b4873b98b1834c47379f2
+      name: Zabbix interface availability
+      mappings:
+      - value: '0'
+        newvalue: Unavailable
+      - value: '1'
+        newvalue: Available
+      - value: '2'
+        newvalue: Unknown
+    - uuid: 3c135a146a5e426ba4e6e4d670bf3d87
+      name: SNIA-SML-MIB::OperationalStatus
+      mappings:
+      - value: '0'
+        newvalue: unknown
+      - value: '1'
+        newvalue: other
+      - value: '2'
+        newvalue: ok
+      - value: '3'
+        newvalue: degraded
+      - value: '4'
+        newvalue: stressed
+      - value: '5'
+        newvalue: predictiveFailure
+      - value: '6'
+        newvalue: error
+      - value: '7'
+        newvalue: non-RecoverableError
+      - value: '8'
+        newvalue: starting
+      - value: '9'
+        newvalue: stopping
+      - value: '10'
+        newvalue: stopped
+      - value: '11'
+        newvalue: inService
+      - value: '12'
+        newvalue: noContact
+      - value: '13'
+        newvalue: lostCommunication
+      - value: '14'
+        newvalue: aborted
+      - value: '15'
+        newvalue: dormant
+      - value: '16'
+        newvalue: supportingEntityInError
+      - value: '17'
+        newvalue: completed
+      - value: '18'
+        newvalue: powerMode
+      - value: '19'
+        newvalue: dMTFReserved
+      - value: '32768'
+        newvalue: vendorReserved
+    - uuid: 452ba0e42da74b439ca4167ca0978cca
+      name: SNIA-SML-MIB::Availability
+      mappings:
+      - value: '1'
+        newvalue: other
+      - value: '2'
+        newvalue: unknown
+      - value: '3'
+        newvalue: runningFullPower
+      - value: '4'
+        newvalue: warning
+      - value: '5'
+        newvalue: inTest
+      - value: '6'
+        newvalue: notApplicable
+      - value: '7'
+        newvalue: powerOff
+      - value: '8'
+        newvalue: offLine
+      - value: '9'
+        newvalue: offDuty
+      - value: '10'
+        newvalue: degraded
+      - value: '11'
+        newvalue: notInstalled
+      - value: '12'
+        newvalue: installError
+      - value: '13'
+        newvalue: powerSaveUnknown
+      - value: '14'
+        newvalue: powerSaveLowPowerMode
+      - value: '15'
+        newvalue: powerSaveStandby
+      - value: '16'
+        newvalue: powerCycle
+      - value: '17'
+        newvalue: powerSaveWarning
+      - value: '18'
+        newvalue: paused
+      - value: '19'
+        newvalue: notReady
+      - value: '20'
+        newvalue: notConfigured
+      - value: '21'
+        newvalue: quiesced
+    - uuid: ae16a11b03344a0ea4e423da751fbed3
+      name: SNIA-SML-MIB::TruthValue
+      mappings:
+      - value: '0'
+        newvalue: unknown
+      - value: '1'
+        newvalue: 'true'
+      - value: '2'
+        newvalue: 'false'
+    - uuid: 20234176e6d14ad987537046afdb141d
+      name: SNIA-SML-MIB::SecurityBreach
+      mappings:
+      - value: '1'
+        newvalue: unknown
+      - value: '2'
+        newvalue: other
+      - value: '3'
+        newvalue: noBreach
+      - value: '4'
+        newvalue: breachAttempted
+      - value: '5'
+        newvalue: breachSuccessful
+    - uuid: 1ee58844a8074e4a96b7b7b2c7c8f421
+      name: SNIA-SML-MIB::LocationType
+      mappings:
+      - value: '0'
+        newvalue: unknown
+      - value: '1'
+        newvalue: other
+      - value: '2'
+        newvalue: slot
+      - value: '3'
+        newvalue: magazine
+      - value: '4'
+        newvalue: mediaAccessDevice
+      - value: '5'
+        newvalue: interLibraryPort
+      - value: '6'
+        newvalue: limitedAccessPort
+      - value: '7'
+        newvalue: door
+      - value: '8'
+        newvalue: drive
+      - value: '9'
+        newvalue: system
+    - uuid: 12f555a1107b4577bd1d3f1e8840a6f2
+      name: SNIA-SML-MIB::TrapSeverity
+      mappings:
+      - value: '0'
+        newvalue: unknown
+      - value: '1'
+        newvalue: other
+      - value: '2'
+        newvalue: information
+      - value: '3'
+        newvalue: degradedWarning
+      - value: '4'
+        newvalue: minor
+      - value: '5'
+        newvalue: major
+      - value: '6'
+        newvalue: critical
+      - value: '7'
+        newvalue: fatalNonRecoverable
+    - uuid: 4ad1f93a9b584f8aa20dfbd14319fb66
+      name: SNIA-SML-MIB::TrapsEnabled
+      mappings:
+      - value: '1'
+        newvalue: enabled
+      - value: '2'
+        newvalue: disabled
+    - uuid: 58e12dc3d43a4d0a81f5e522e3a28ae2
+      name: IBM-AUTOMATION-QUERY-MIB::TruthValue
+      mappings:
+      - value: '1'
+        newvalue: 'true'
+      - value: '2'
+        newvalue: 'false'
+    - uuid: 2feacb5c4cbf436da70b1e501bdeb03c
+      name: IBM-AUTOMATION-QUERY-MIB::PowerSupplyInstalled
+      mappings:
+      - value: '1'
+        newvalue: notInstalled
+      - value: '2'
+        newvalue: installed
+    - uuid: dc5047a7d3664e71bf16007d63434903
+      name: IBM-AUTOMATION-QUERY-MIB::PowerSupplyRedundancy
+      mappings:
+      - value: '1'
+        newvalue: ok
+      - value: '2'
+        newvalue: notOk
+      - value: '3'
+        newvalue: notApplicable
+    - uuid: 2cbab8263e9443f18d3a5c6c9c6a9264
+      name: IBM-AUTOMATION-QUERY-MIB::DrivePortSignal
+      mappings:
+      - value: '1'
+        newvalue: noLight
+      - value: '2'
+        newvalue: lightDetected
+      - value: '3'
+        newvalue: unknown
+    - uuid: 71600f7c5f6e4b10bcf634f840c0336a
+      name: IBM-AUTOMATION-QUERY-MIB::DriveInstalled
+      mappings:
+      - value: '1'
+        newvalue: 'true'
+      - value: '2'
+        newvalue: 'false'
+    - uuid: a3d207f4ad114420be1bbc06d215c75b
+      name: IBM-AUTOMATION-QUERY-MIB::DriveType
+      mappings:
+      - value: '1'
+        newvalue: lto
+  graphs:
+  - uuid: deba3d01655340cbafab91d9ef2fa641
+    name: 'ML3: Availability and health'
+    height: '200'
+    graph_items:
+    - sortorder: '0'
+      color: 199C0D
+      item:
+        host: IBM ML3 Tape Library by SNMP
+        key: zabbix[host,snmp,available]
+    - sortorder: '1'
+      color: F63100
+      item:
+        host: IBM ML3 Tape Library by SNMP
+        key: ml3.system.operational_status
+    - sortorder: '2'
+      color: 00611C
+      item:
+        host: IBM ML3 Tape Library by SNMP
+        key: ml3.traps.enabled
+    - sortorder: '3'
+      color: F7941D
+      item:
+        host: IBM ML3 Tape Library by SNMP
+        key: ml3.trap.severity
+  - uuid: 75ac5a1bf9a04ea0a3ffd24a6faca6ef
+    name: 'ML3: Inventory counts'
+    height: '220'
+    graph_items:
+    - sortorder: '0'
+      color: 199C0D
+      item:
+        host: IBM ML3 Tape Library by SNMP
+        key: ml3.count.sub_chassis
+    - sortorder: '1'
+      color: F63100
+      item:
+        host: IBM ML3 Tape Library by SNMP
+        key: ml3.ibm.count.logical_libraries
+    - sortorder: '2'
+      color: 00611C
+      item:
+        host: IBM ML3 Tape Library by SNMP
+        key: ml3.ibm.count.possible_drives
+    - sortorder: '3'
+      color: F7941D
+      item:
+        host: IBM ML3 Tape Library by SNMP
+        key: ml3.count.fc_ports
+    - sortorder: '4'
+      color: 2774A4
+      item:
+        host: IBM ML3 Tape Library by SNMP
+        key: ml3.count.scsi_controllers
+    - sortorder: '5'
+      color: A54F10
+      item:
+        host: IBM ML3 Tape Library by SNMP
+        key: ml3.count.software_elements
+  - uuid: 573a0a5b5fc54c8d81e1cb9283f3a545
+    name: 'ML3: Media and slot counts'
+    height: '220'
+    graph_items:
+    - sortorder: '0'
+      color: 199C0D
+      item:
+        host: IBM ML3 Tape Library by SNMP
+        key: ml3.count.storage_locations
+    - sortorder: '1'
+      color: F63100
+      item:
+        host: IBM ML3 Tape Library by SNMP
+        key: ml3.count.physical_media
+    - sortorder: '2'
+      color: 00611C
+      item:
+        host: IBM ML3 Tape Library by SNMP
+        key: ml3.count.limited_access_ports
+    - sortorder: '3'
+      color: F7941D
+      item:
+        host: IBM ML3 Tape Library by SNMP
+        key: ml3.count.changer_devices
+    - sortorder: '4'
+      color: 2774A4
+      item:
+        host: IBM ML3 Tape Library by SNMP
+        key: ml3.count.drives.snia
