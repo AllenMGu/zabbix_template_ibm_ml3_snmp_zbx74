@@ -1,0 +1,1158 @@
+zabbix_export:
+  version: '7.4'
+  template_groups:
+  - uuid: ce6532b20c444733b8614edc0cd5d531
+    name: Templates/Server hardware
+  templates:
+  - uuid: c294adfa9a404c129c7902a9584cbff1
+    template: Template Dell TL1000 TapeLibrary
+    name: Template Dell TL1000 TapeLibrary
+    description: Dell TL1000 / IBM TS2900 SNMP template completed from IBM-2900-MIB and formatted for Zabbix 7.4 YAML import.
+    readme: '## Overview
+
+      Dell PowerVault TL1000 is an OEM version of IBM TS2900 / IBM 3572-TL. This template uses numeric SNMP OIDs from IBM-2900-MIB,
+      so the MIB file does not need to be installed on the Zabbix server.
+
+
+      ## What was added from IBM-2900-MIB
+
+      - IBM library inventory scalars: MIB revision, unit name, serial number, firmware, bus information, slot and trap recipient
+      limits.
+
+      - Controller, magazine, import/export slot, robot, online/offline and door status items.
+
+      - Drive low-level discovery for drive inventory, state and status.
+
+      - Slot low-level discovery for slot type and barcode label.
+
+      - Event low-level discovery for emergency/error/warning events.
+
+      - Trap client low-level discovery without collecting community/user name secrets.
+
+
+      ## Compatibility notes
+
+      - The template UUID and existing item UUIDs are retained from the previously converted Zabbix 7.4 template, so it should
+      update that template cleanly.
+
+      - The original hard-coded slot items are retained, while the new slot LLD gives complete dynamic slot coverage.
+
+      - The original robot status OID was corrected from controller state to robotStatus.
+
+      - Configure the host SNMP interface and community/security on the host, not inside this template.
+
+      - Event discovery excludes informational severity 5 by default via {$TL1000.EVENT.INFO.MATCHES}.
+
+      '
+    vendor:
+      name: Community / NiceRath modified
+      version: 7.4-full-mib-2
+    groups:
+    - name: Templates/Server hardware
+    items:
+    - uuid: 9b0d7b2bbffd43db9de1717b9fcdd34b
+      name: TapeLibrary SNMP sysName
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.2.1.1.5.0
+      key: tl1000.description
+      delay: 1d
+      history: 30d
+      trends: '0'
+      value_type: CHAR
+      tags:
+      - tag: component
+        value: inventory
+    - uuid: 101bb551f6504d028840772eaad8a8f5
+      name: TapeLibrary Drive 0 Firmware
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.2.6.219.2.1.2.1.4.0
+      key: tl1000.drive.firmware
+      delay: 1d
+      history: 30d
+      trends: '0'
+      value_type: CHAR
+      tags:
+      - tag: component
+        value: drive
+      triggers:
+      - uuid: fae63a18f4d244bd878beeb3d9036ba5
+        expression: last(/Template Dell TL1000 TapeLibrary/tl1000.drive.firmware,#1)<>last(/Template Dell TL1000 TapeLibrary/tl1000.drive.firmware,#2)
+          and length(last(/Template Dell TL1000 TapeLibrary/tl1000.drive.firmware,#2))>0
+        name: TapeLibrary Drive 0 firmware changed
+        priority: INFO
+        opdata: '{ITEM.LASTVALUE1}'
+    - uuid: 8d916c1753f444d98e4a1ccc39e41fec
+      name: TapeLibrary Firmware
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.2.6.219.2.1.1.8.0
+      key: tl1000.firmware
+      delay: 1d
+      history: 30d
+      trends: '0'
+      value_type: CHAR
+      tags:
+      - tag: component
+        value: inventory
+      triggers:
+      - uuid: d492a3311ef14f32a699d3e3cba0a5dc
+        expression: last(/Template Dell TL1000 TapeLibrary/tl1000.firmware,#1)<>last(/Template Dell TL1000 TapeLibrary/tl1000.firmware,#2)
+          and length(last(/Template Dell TL1000 TapeLibrary/tl1000.firmware,#2))>0
+        name: TapeLibrary firmware changed
+        priority: INFO
+        opdata: '{ITEM.LASTVALUE1}'
+    - uuid: ae882f5a3fa84bcda355239b138c6e0f
+      name: TapeLibrary Link Speed
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.2.1.2.2.1.5.1
+      key: tl1000.link
+      delay: 1d
+      history: 7d
+      trends: '0'
+      units: bps
+      tags:
+      - tag: component
+        value: network
+    - uuid: c95156182c9743ab921f00aa2db282a3
+      name: TapeLibrary SNMP sysLocation
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.2.1.1.6.0
+      key: tl1000.location
+      delay: 1d
+      history: 30d
+      trends: '0'
+      value_type: CHAR
+      tags:
+      - tag: component
+        value: inventory
+    - uuid: 36a73b7b2b6c4ff69035cf4299164c50
+      name: TapeLibrary SNMP sysDescr
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.2.1.1.1.0
+      key: tl1000.model
+      delay: 1d
+      history: 30d
+      trends: '0'
+      value_type: CHAR
+      tags:
+      - tag: component
+        value: inventory
+    - uuid: c8549c2c1ad3475e898e6ff59e82dab3
+      name: TapeLibrary Controller Online Status
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.2.6.219.2.2.1.1.8.1
+      key: tl1000.state.controller
+      delay: 5m
+      history: 30d
+      trends: '0'
+      valuemap:
+        name: TapeLibrary Online Status
+      tags:
+      - tag: component
+        value: status
+      triggers:
+      - uuid: 8eacf2e3ad1540caa99575fa3b732bf8
+        expression: last(/Template Dell TL1000 TapeLibrary/tl1000.state.controller)<>2
+        name: TapeLibrary Controller Offline
+        priority: HIGH
+        opdata: '{ITEM.LASTVALUE1}'
+    - uuid: 278b2bef1578406aa562d56411ef3a3f
+      name: TapeLibrary Magazine State
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.2.6.219.2.2.1.1.3.1
+      key: tl1000.state.locking
+      delay: 5m
+      history: 30d
+      trends: '0'
+      valuemap:
+        name: TapeLibrary Magazine State
+      tags:
+      - tag: component
+        value: status
+      triggers:
+      - uuid: 40b31b9d8ee34f5495987b4d687f54d4
+        expression: last(/Template Dell TL1000 TapeLibrary/tl1000.state.locking)=2
+        name: TapeLibrary Magazine Open/Unlocked
+        priority: WARNING
+        opdata: '{ITEM.LASTVALUE1}'
+    - uuid: ee13acc114544adc82c345f5e671d465
+      name: TapeLibrary Controller Health Status
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.2.6.219.2.2.1.1.7.1
+      key: tl1000.status.controller
+      delay: 5m
+      history: 30d
+      trends: '0'
+      valuemap:
+        name: TapeLibrary Status
+      tags:
+      - tag: component
+        value: status
+      triggers:
+      - uuid: 450ba62330cf4f1687ffb542a5f3f0ea
+        expression: last(/Template Dell TL1000 TapeLibrary/tl1000.status.controller)<>2
+        name: TapeLibrary Controller Status NOT OK
+        priority: AVERAGE
+        opdata: '{ITEM.LASTVALUE1}'
+    - uuid: b66b040cb05e42729a80edcc861748ee
+      name: TapeLibrary Drive 0 Status
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.2.6.219.2.2.2.1.3.0
+      key: tl1000.status.drive
+      delay: 5m
+      history: 30d
+      trends: '0'
+      valuemap:
+        name: TapeLibrary Drive Status
+      tags:
+      - tag: component
+        value: drive
+      triggers:
+      - uuid: 95b57b1ba03e4db9861e4125902cbae1
+        expression: last(/Template Dell TL1000 TapeLibrary/tl1000.status.drive)<>2
+        name: TapeLibrary Drive 0 Status NOT OK
+        priority: AVERAGE
+        opdata: '{ITEM.LASTVALUE1}'
+    - uuid: 5e3bb5bd66e14e4a930c7f7ec850d34f
+      name: TapeLibrary Magazine Status
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.2.6.219.2.2.1.1.4.1
+      key: tl1000.status.magazine
+      delay: 5m
+      history: 30d
+      trends: '0'
+      valuemap:
+        name: TapeLibrary Status
+      tags:
+      - tag: component
+        value: status
+      triggers:
+      - uuid: 1f57b06588274a00b329b49813a9f3c5
+        expression: last(/Template Dell TL1000 TapeLibrary/tl1000.status.magazine)<>2
+        name: TapeLibrary Magazine Status NOT OK
+        priority: AVERAGE
+        opdata: '{ITEM.LASTVALUE1}'
+    - uuid: edaa34cfb3644a2dbfa4ca692e416648
+      name: TapeLibrary Controller Power Status
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.2.6.219.2.2.1.1.2.1
+      key: tl1000.status.power
+      delay: 5m
+      history: 30d
+      trends: '0'
+      valuemap:
+        name: TapeLibrary Status
+      tags:
+      - tag: component
+        value: status
+      triggers:
+      - uuid: d7b0edbd2e234cae9e243184eae63757
+        expression: last(/Template Dell TL1000 TapeLibrary/tl1000.status.power)<>2
+        name: TapeLibrary Power Status NOT OK
+        priority: AVERAGE
+        opdata: '{ITEM.LASTVALUE1}'
+    - uuid: be59c63b78ff451289d9c71b755c3146
+      name: TapeLibrary Robot Status
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.2.6.219.2.2.1.1.6.1
+      key: tl1000.status.robot
+      delay: 5m
+      history: 30d
+      trends: '0'
+      valuemap:
+        name: TapeLibrary Status
+      tags:
+      - tag: component
+        value: status
+      triggers:
+      - uuid: 1a85956bb8ff448eadc88bf81dd98218
+        expression: last(/Template Dell TL1000 TapeLibrary/tl1000.status.robot)<>2
+        name: TapeLibrary Robot Status NOT OK
+        priority: AVERAGE
+        opdata: '{ITEM.LASTVALUE1}'
+    - uuid: e4f2e7514506441c8c36d9f2eec38016
+      name: TapeLibrary Uptime
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.2.1.1.3.0
+      key: tl1000.uptime
+      delay: 1h
+      history: 30d
+      trends: '0'
+      units: s
+      preprocessing:
+      - type: MULTIPLIER
+        parameters:
+        - '0.01'
+      tags:
+      - tag: component
+        value: system
+      triggers:
+      - uuid: 4a6b6cb165924b3497796d6b88db71df
+        expression: last(/Template Dell TL1000 TapeLibrary/tl1000.uptime)<3600
+        name: TapeLibrary Rebooted
+        priority: INFO
+    - uuid: 37d9d6732c97450db4b9134ea6da5e8d
+      name: TapeLibrary Tape Slot 1
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.2.6.219.2.1.3.4.1.3.1
+      key: tl1000.tape.1
+      delay: 1d
+      history: 90d
+      trends: '0'
+      value_type: CHAR
+      tags:
+      - tag: component
+        value: slot
+    - uuid: d3114d74e0e442178b1616db2cd5f2e8
+      name: TapeLibrary Tape Slot 2
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.2.6.219.2.1.3.4.1.3.2
+      key: tl1000.tape.2
+      delay: 1d
+      history: 90d
+      trends: '0'
+      value_type: CHAR
+      tags:
+      - tag: component
+        value: slot
+    - uuid: 0df719e53a944325b5d72c0c7fd527e1
+      name: TapeLibrary Tape Slot 3
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.2.6.219.2.1.3.4.1.3.3
+      key: tl1000.tape.3
+      delay: 1d
+      history: 90d
+      trends: '0'
+      value_type: CHAR
+      tags:
+      - tag: component
+        value: slot
+    - uuid: 8e0af199f7e446e3908548501401fcb4
+      name: TapeLibrary Tape Slot 4
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.2.6.219.2.1.3.4.1.3.4
+      key: tl1000.tape.4
+      delay: 1d
+      history: 90d
+      trends: '0'
+      value_type: CHAR
+      tags:
+      - tag: component
+        value: slot
+    - uuid: 296f84a806cd4557945fbda8d4076e95
+      name: TapeLibrary Tape Slot 5
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.2.6.219.2.1.3.4.1.3.5
+      key: tl1000.tape.5
+      delay: 1d
+      history: 90d
+      trends: '0'
+      value_type: CHAR
+      tags:
+      - tag: component
+        value: slot
+    - uuid: b3dd4d5957db4921ad22709a7285f460
+      name: TapeLibrary Tape Slot 6
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.2.6.219.2.1.3.4.1.3.6
+      key: tl1000.tape.6
+      delay: 1d
+      history: 90d
+      trends: '0'
+      value_type: CHAR
+      tags:
+      - tag: component
+        value: slot
+    - uuid: abfaa973f16844e685f6c8bfd74a95cc
+      name: TapeLibrary Tape Slot 7
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.2.6.219.2.1.3.4.1.3.7
+      key: tl1000.tape.7
+      delay: 1d
+      history: 90d
+      trends: '0'
+      value_type: CHAR
+      tags:
+      - tag: component
+        value: slot
+    - uuid: fb02d97f040d4dd98e27cf8134607335
+      name: TapeLibrary Tape Slot 8
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.2.6.219.2.1.3.4.1.3.8
+      key: tl1000.tape.8
+      delay: 1d
+      history: 90d
+      trends: '0'
+      value_type: CHAR
+      tags:
+      - tag: component
+        value: slot
+    - uuid: 5e90ddf7e9394e93aa2b264d4864079f
+      name: TapeLibrary Tape Cleaning
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.2.6.219.2.1.3.4.1.3.9
+      key: tl1000.tape.9
+      delay: 1d
+      history: 90d
+      trends: '0'
+      value_type: CHAR
+      tags:
+      - tag: component
+        value: slot
+    - uuid: 302815fdfa804d9b88bdb4db9b51381f
+      name: TapeLibrary Tape Loaded
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.2.6.219.2.1.3.4.1.3.10
+      key: tl1000.tape.10
+      delay: 1d
+      history: 90d
+      trends: '0'
+      value_type: CHAR
+      tags:
+      - tag: component
+        value: slot
+    - uuid: c20d391a2f2d4fbb823bb66d4b4d5735
+      name: TapeLibrary SNMP sysContact
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.2.1.1.4.0
+      key: tl1000.snmp.sysContact
+      delay: 1d
+      history: 30d
+      trends: '0'
+      value_type: CHAR
+      tags:
+      - tag: component
+        value: inventory
+    - uuid: 003d932356b04f38831205d8bb5d4710
+      name: TapeLibrary MIB Revision
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.2.6.219.2.5.0
+      key: tl1000.ibm.mib.revision
+      delay: 1d
+      history: 30d
+      trends: '0'
+      value_type: CHAR
+      tags:
+      - tag: component
+        value: inventory
+    - uuid: dc7d057b5533401288853c52bf42caea
+      name: TapeLibrary Unit Count
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.2.6.219.2.1.1.1.0
+      key: tl1000.unit.count
+      delay: 1d
+      history: 30d
+      trends: '0'
+      tags:
+      - tag: component
+        value: inventory
+    - uuid: 023b4e3652bf4e0089c15c8e56f973d9
+      name: TapeLibrary Unit Time
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.2.6.219.2.1.1.2.0
+      key: tl1000.unit.time
+      delay: 1d
+      history: 30d
+      trends: '0'
+      value_type: CHAR
+      tags:
+      - tag: component
+        value: inventory
+    - uuid: 1e5a4dbe120e470888adf01578b82841
+      name: TapeLibrary IBM System Name
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.2.6.219.2.1.1.3.0
+      key: tl1000.unit.sysName
+      delay: 1d
+      history: 30d
+      trends: '0'
+      value_type: CHAR
+      tags:
+      - tag: component
+        value: inventory
+    - uuid: 9582030dd94b4d06b1f342655533fa8c
+      name: TapeLibrary IBM Contact
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.2.6.219.2.1.1.4.0
+      key: tl1000.unit.contact
+      delay: 1d
+      history: 30d
+      trends: '0'
+      value_type: CHAR
+      tags:
+      - tag: component
+        value: inventory
+    - uuid: b992078a5e014dc6b5acdf4e21dd2bda
+      name: TapeLibrary IBM Location
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.2.6.219.2.1.1.5.0
+      key: tl1000.unit.location
+      delay: 1d
+      history: 30d
+      trends: '0'
+      value_type: CHAR
+      tags:
+      - tag: component
+        value: inventory
+    - uuid: fdb6df9e2540493dacce7aa2058e1453
+      name: TapeLibrary Unit Name
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.2.6.219.2.1.1.6.0
+      key: tl1000.unit.name
+      delay: 1d
+      history: 30d
+      trends: '0'
+      value_type: CHAR
+      tags:
+      - tag: component
+        value: inventory
+    - uuid: b36b386f10334f3cb48ca24f114275fb
+      name: TapeLibrary Serial Number
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.2.6.219.2.1.1.7.0
+      key: tl1000.unit.serial
+      delay: 1d
+      history: 30d
+      trends: '0'
+      value_type: CHAR
+      tags:
+      - tag: component
+        value: inventory
+      triggers:
+      - uuid: 4cc514c9b81042769eef3cbbf64fcc80
+        expression: last(/Template Dell TL1000 TapeLibrary/tl1000.unit.serial,#1)<>last(/Template Dell TL1000 TapeLibrary/tl1000.unit.serial,#2)
+          and length(last(/Template Dell TL1000 TapeLibrary/tl1000.unit.serial,#2))>0
+        name: TapeLibrary Serial Number changed
+        priority: INFO
+        opdata: '{ITEM.LASTVALUE1}'
+    - uuid: 56ea3c4b8d1f4a12a4e7f5a598295974
+      name: TapeLibrary Bus Info
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.2.6.219.2.1.1.9.0
+      key: tl1000.unit.busInfo
+      delay: 1d
+      history: 30d
+      trends: '0'
+      valuemap:
+        name: TapeLibrary SCSI Bus
+      tags:
+      - tag: component
+        value: inventory
+    - uuid: 2baae7065f0540ba8b4ad49b469b9344
+      name: TapeLibrary SCSI ID
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.2.6.219.2.1.1.10.0
+      key: tl1000.unit.scsiId
+      delay: 1d
+      history: 30d
+      trends: '0'
+      tags:
+      - tag: component
+        value: inventory
+    - uuid: dace0f0342914a668349b95a45a78380
+      name: TapeLibrary Max User Slots
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.2.6.219.2.1.3.1.0
+      key: tl1000.slot.maxUserSlots
+      delay: 1d
+      history: 30d
+      trends: '0'
+      tags:
+      - tag: component
+        value: inventory
+    - uuid: 7c8cdd7fdcbe425ba624db26777c8bba
+      name: TapeLibrary Max Magazines
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.2.6.219.2.1.3.2.0
+      key: tl1000.slot.maxMagazines
+      delay: 1d
+      history: 30d
+      trends: '0'
+      tags:
+      - tag: component
+        value: inventory
+    - uuid: 2df91e6fb847403bbd011ead3dd76482
+      name: TapeLibrary Import/Export Slot Count
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.2.6.219.2.1.3.3.0
+      key: tl1000.slot.ieSlotCount
+      delay: 1d
+      history: 30d
+      trends: '0'
+      tags:
+      - tag: component
+        value: inventory
+    - uuid: 669d9d71981a4458910cf4c670f7edc3
+      name: TapeLibrary Import/Export Slot State
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.2.6.219.2.2.1.1.5.1
+      key: tl1000.ieSlot.state
+      delay: 5m
+      history: 30d
+      trends: '0'
+      valuemap:
+        name: TapeLibrary Open/Close State
+      tags:
+      - tag: component
+        value: status
+      triggers:
+      - uuid: 450124bc5ecc467d8b908c70befbcafe
+        expression: last(/Template Dell TL1000 TapeLibrary/tl1000.ieSlot.state)=2
+        name: TapeLibrary Import/Export Slot State open
+        priority: WARNING
+        opdata: '{ITEM.LASTVALUE1}'
+    - uuid: 565dc8c6578f40fd94670c0fa7ed194e
+      name: TapeLibrary Door Status
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.2.6.219.2.2.1.1.9.1
+      key: tl1000.door.status
+      delay: 5m
+      history: 30d
+      trends: '0'
+      valuemap:
+        name: TapeLibrary Open/Close State
+      tags:
+      - tag: component
+        value: status
+      triggers:
+      - uuid: 1061e35075024479b80a55e3e4e215af
+        expression: last(/Template Dell TL1000 TapeLibrary/tl1000.door.status)=2
+        name: TapeLibrary Door Status open
+        priority: WARNING
+        opdata: '{ITEM.LASTVALUE1}'
+    - uuid: 134bf7919a9a4c399b232daef67fa583
+      name: TapeLibrary Max Trap Recipients
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.2.6.219.2.4.1.0
+      key: tl1000.trap.maxRecipients
+      delay: 1d
+      history: 30d
+      trends: '0'
+      tags:
+      - tag: component
+        value: trap
+    - uuid: 036e6bb1c08b4c37b259bec6ad683fe5
+      name: TapeLibrary Current Trap Recipients
+      type: SNMP_AGENT
+      snmp_oid: 1.3.6.1.4.1.2.6.219.2.4.2.0
+      key: tl1000.trap.currentRecipients
+      delay: 1d
+      history: 30d
+      trends: '0'
+      tags:
+      - tag: component
+        value: trap
+    discovery_rules:
+    - uuid: df0fcd54efe74a98bbb4d193096d777a
+      name: TapeLibrary Drive Discovery
+      type: SNMP_AGENT
+      snmp_oid: discovery[{#DRIVE_NAME},1.3.6.1.4.1.2.6.219.2.1.2.1.2,{#DRIVE_SERIAL},1.3.6.1.4.1.2.6.219.2.1.2.1.3]
+      key: tl1000.drive.discovery
+      delay: 1h
+      lifetime: 7d
+      lifetime_type: DELETE_AFTER
+      enabled_lifetime: 1d
+      enabled_lifetime_type: DISABLE_AFTER
+      description: Discovers drives from IBM-2900-MIB driveInfoTable. {#SNMPINDEX} is used as the drive table index.
+      item_prototypes:
+      - uuid: 9aced1329cae445a868ccd3826e44194
+        name: 'TapeLibrary Drive {#SNMPINDEX}: Name'
+        type: SNMP_AGENT
+        snmp_oid: 1.3.6.1.4.1.2.6.219.2.1.2.1.2.{#SNMPINDEX}
+        key: tl1000.drive.name[{#SNMPINDEX}]
+        delay: 1d
+        history: 30d
+        trends: '0'
+        value_type: CHAR
+        tags:
+        - tag: component
+          value: drive
+      - uuid: f25c08f23bc6441c86e4db5e2887a441
+        name: 'TapeLibrary Drive {#SNMPINDEX}: Serial Number'
+        type: SNMP_AGENT
+        snmp_oid: 1.3.6.1.4.1.2.6.219.2.1.2.1.3.{#SNMPINDEX}
+        key: tl1000.drive.serial[{#SNMPINDEX}]
+        delay: 1d
+        history: 30d
+        trends: '0'
+        value_type: CHAR
+        tags:
+        - tag: component
+          value: drive
+        trigger_prototypes:
+        - uuid: fd14f90f52374305bcd60f8d0a36ae40
+          expression: last(/Template Dell TL1000 TapeLibrary/tl1000.drive.serial[{#SNMPINDEX}],#1)<>last(/Template Dell TL1000
+            TapeLibrary/tl1000.drive.serial[{#SNMPINDEX}],#2) and length(last(/Template Dell TL1000 TapeLibrary/tl1000.drive.serial[{#SNMPINDEX}],#2))>0
+          name: TapeLibrary Drive {#SNMPINDEX} serial changed
+          priority: INFO
+          opdata: '{ITEM.LASTVALUE1}'
+      - uuid: 1824bf270a214f1181f4cb2bf018b026
+        name: 'TapeLibrary Drive {#SNMPINDEX}: Firmware'
+        type: SNMP_AGENT
+        snmp_oid: 1.3.6.1.4.1.2.6.219.2.1.2.1.4.{#SNMPINDEX}
+        key: tl1000.drive.firmware[{#SNMPINDEX}]
+        delay: 1d
+        history: 30d
+        trends: '0'
+        value_type: CHAR
+        tags:
+        - tag: component
+          value: drive
+        trigger_prototypes:
+        - uuid: ca4554d3389e4178bb32d7183c01cd48
+          expression: last(/Template Dell TL1000 TapeLibrary/tl1000.drive.firmware[{#SNMPINDEX}],#1)<>last(/Template Dell
+            TL1000 TapeLibrary/tl1000.drive.firmware[{#SNMPINDEX}],#2) and length(last(/Template Dell TL1000 TapeLibrary/tl1000.drive.firmware[{#SNMPINDEX}],#2))>0
+          name: TapeLibrary Drive {#SNMPINDEX} firmware changed
+          priority: INFO
+          opdata: '{ITEM.LASTVALUE1}'
+      - uuid: d1c384444c7e4ef4ad56cfdb9c48ee4f
+        name: 'TapeLibrary Drive {#SNMPINDEX}: Bus Info'
+        type: SNMP_AGENT
+        snmp_oid: 1.3.6.1.4.1.2.6.219.2.1.2.1.5.{#SNMPINDEX}
+        key: tl1000.drive.busInfo[{#SNMPINDEX}]
+        delay: 1d
+        history: 30d
+        trends: '0'
+        valuemap:
+          name: TapeLibrary SCSI Bus
+        tags:
+        - tag: component
+          value: drive
+      - uuid: 603566016045490d885cb2f982fd6fc6
+        name: 'TapeLibrary Drive {#SNMPINDEX}: SCSI ID'
+        type: SNMP_AGENT
+        snmp_oid: 1.3.6.1.4.1.2.6.219.2.1.2.1.6.{#SNMPINDEX}
+        key: tl1000.drive.scsiId[{#SNMPINDEX}]
+        delay: 1d
+        history: 30d
+        trends: '0'
+        tags:
+        - tag: component
+          value: drive
+      - uuid: fb7783aa11ff4a0cb120f7d0cba8045e
+        name: 'TapeLibrary Drive {#SNMPINDEX}: State'
+        type: SNMP_AGENT
+        snmp_oid: 1.3.6.1.4.1.2.6.219.2.2.2.1.2.{#SNMPINDEX}
+        key: tl1000.drive.state[{#SNMPINDEX}]
+        delay: 5m
+        history: 30d
+        trends: '0'
+        valuemap:
+          name: TapeLibrary Drive State
+        tags:
+        - tag: component
+          value: drive
+      - uuid: ed221e2e880b40e98fbcd1b2edcd706f
+        name: 'TapeLibrary Drive {#SNMPINDEX}: Status'
+        type: SNMP_AGENT
+        snmp_oid: 1.3.6.1.4.1.2.6.219.2.2.2.1.3.{#SNMPINDEX}
+        key: tl1000.drive.status[{#SNMPINDEX}]
+        delay: 5m
+        history: 30d
+        trends: '0'
+        valuemap:
+          name: TapeLibrary Drive Status
+        tags:
+        - tag: component
+          value: drive
+        trigger_prototypes:
+        - uuid: 810b6703ec294e8fa1dd8803d098df22
+          expression: last(/Template Dell TL1000 TapeLibrary/tl1000.drive.status[{#SNMPINDEX}])=3
+          name: TapeLibrary Drive {#SNMPINDEX} cleaning needed
+          priority: WARNING
+          opdata: '{ITEM.LASTVALUE1}'
+        - uuid: f2273a1c0daf424497f37b49a498238d
+          expression: last(/Template Dell TL1000 TapeLibrary/tl1000.drive.status[{#SNMPINDEX}])=4
+          name: TapeLibrary Drive {#SNMPINDEX} warning
+          priority: AVERAGE
+          opdata: '{ITEM.LASTVALUE1}'
+        - uuid: 83e90c9eed864a0e9c71613835d07bd9
+          expression: last(/Template Dell TL1000 TapeLibrary/tl1000.drive.status[{#SNMPINDEX}])=5
+          name: TapeLibrary Drive {#SNMPINDEX} failed
+          priority: HIGH
+          opdata: '{ITEM.LASTVALUE1}'
+    - uuid: 8bcbef34f7a04dd1a32b4e9bdeba74f7
+      name: TapeLibrary Slot Discovery
+      type: SNMP_AGENT
+      snmp_oid: discovery[{#SLOT_TYPE},1.3.6.1.4.1.2.6.219.2.1.3.4.1.2,{#SLOT_BARCODE},1.3.6.1.4.1.2.6.219.2.1.3.4.1.3]
+      key: tl1000.slot.discovery
+      delay: 1h
+      lifetime: 7d
+      lifetime_type: DELETE_AFTER
+      enabled_lifetime: 1d
+      enabled_lifetime_type: DISABLE_AFTER
+      description: Discovers tape slots, import/export slots and drive slots from slotInfoTable.
+      item_prototypes:
+      - uuid: 7c53e69d88c94f9ebdffea8964547332
+        name: 'TapeLibrary Slot {#SNMPINDEX}: Type'
+        type: SNMP_AGENT
+        snmp_oid: 1.3.6.1.4.1.2.6.219.2.1.3.4.1.2.{#SNMPINDEX}
+        key: tl1000.slot.type[{#SNMPINDEX}]
+        delay: 1h
+        history: 30d
+        trends: '0'
+        valuemap:
+          name: TapeLibrary Slot Type
+        tags:
+        - tag: component
+          value: slot
+      - uuid: a0528564bf9649069204bbda8a22ae93
+        name: 'TapeLibrary Slot {#SNMPINDEX}: Barcode'
+        type: SNMP_AGENT
+        snmp_oid: 1.3.6.1.4.1.2.6.219.2.1.3.4.1.3.{#SNMPINDEX}
+        key: tl1000.slot.barcode[{#SNMPINDEX}]
+        delay: 1h
+        history: 90d
+        trends: '0'
+        value_type: CHAR
+        tags:
+        - tag: component
+          value: slot
+        trigger_prototypes:
+        - uuid: d71f26637f2047ca823ea327d6a7f2fc
+          expression: last(/Template Dell TL1000 TapeLibrary/tl1000.slot.barcode[{#SNMPINDEX}],#1)<>last(/Template Dell TL1000
+            TapeLibrary/tl1000.slot.barcode[{#SNMPINDEX}],#2)
+          name: TapeLibrary Slot {#SNMPINDEX} barcode changed
+          priority: INFO
+          opdata: '{ITEM.LASTVALUE1}'
+    - uuid: 92fb52aeb5c04e31a61ab7899ba546a6
+      name: TapeLibrary Event Discovery
+      type: SNMP_AGENT
+      snmp_oid: discovery[{#EVENT_ID},1.3.6.1.4.1.2.6.219.2.3.1.3,{#EVENT_SEVERITY},1.3.6.1.4.1.2.6.219.2.3.1.5]
+      key: tl1000.events
+      delay: 1h
+      lifetime: 7d
+      lifetime_type: DELETE_AFTER
+      enabled_lifetime: 1d
+      enabled_lifetime_type: DISABLE_AFTER
+      filter:
+        evaltype: AND
+        conditions:
+        - macro: '{#EVENT_SEVERITY}'
+          value: '{$TL1000.EVENT.INFO.MATCHES}'
+          operator: NOT_MATCHES_REGEX
+          formulaid: A
+      description: Discovers non-informational event rows from unitEventTable. Informational severity is filtered by {$TL1000.EVENT.INFO.MATCHES}.
+      item_prototypes:
+      - uuid: d507c5c2d3114391a70e2a9f43033781
+        name: 'TapeLibrary Event {#SNMPINDEX}: Unit'
+        type: SNMP_AGENT
+        snmp_oid: 1.3.6.1.4.1.2.6.219.2.3.1.2.{#SNMPINDEX}
+        key: tl1000.event.unit[{#SNMPINDEX}]
+        delay: 1h
+        history: 30d
+        trends: '0'
+        valuemap:
+          name: TapeLibrary Event Unit
+        tags:
+        - tag: component
+          value: event
+      - uuid: 4e9235ed9e664d80b22c55626d0e529f
+        name: 'TapeLibrary Event {#SNMPINDEX}: ID'
+        type: SNMP_AGENT
+        snmp_oid: 1.3.6.1.4.1.2.6.219.2.3.1.3.{#SNMPINDEX}
+        key: tl1000.event.id[{#SNMPINDEX}]
+        delay: 1h
+        history: 30d
+        trends: '0'
+        tags:
+        - tag: component
+          value: event
+      - uuid: 35fa64c2749f4fa98cc691c9df11ddef
+        name: 'TapeLibrary Event {#SNMPINDEX}: Time'
+        type: SNMP_AGENT
+        snmp_oid: 1.3.6.1.4.1.2.6.219.2.3.1.4.{#SNMPINDEX}
+        key: tl1000.event.time[{#SNMPINDEX}]
+        delay: 1h
+        history: 30d
+        trends: '0'
+        value_type: CHAR
+        tags:
+        - tag: component
+          value: event
+      - uuid: 95a499a7fc4d4fc28f1390aae0425a54
+        name: 'TapeLibrary Event {#SNMPINDEX}: Severity'
+        type: SNMP_AGENT
+        snmp_oid: 1.3.6.1.4.1.2.6.219.2.3.1.5.{#SNMPINDEX}
+        key: tl1000.event.severity[{#SNMPINDEX}]
+        delay: 1h
+        history: 30d
+        trends: '0'
+        valuemap:
+          name: TapeLibrary Event Severity
+        tags:
+        - tag: component
+          value: event
+        trigger_prototypes:
+        - uuid: cb6ed6b4b92e407db113fcd0ae3dca51
+          expression: last(/Template Dell TL1000 TapeLibrary/tl1000.event.severity[{#SNMPINDEX}])=2
+          name: TapeLibrary Event {#SNMPINDEX} emergency
+          priority: DISASTER
+          opdata: '{ITEM.LASTVALUE1}'
+          type: MULTIPLE
+        - uuid: 9d686e7375134da89dcee1d3468593bb
+          expression: last(/Template Dell TL1000 TapeLibrary/tl1000.event.severity[{#SNMPINDEX}])=3
+          name: TapeLibrary Event {#SNMPINDEX} error
+          priority: HIGH
+          opdata: '{ITEM.LASTVALUE1}'
+          type: MULTIPLE
+        - uuid: 29fd7f9cfdaf478e82dfe146138bfadd
+          expression: last(/Template Dell TL1000 TapeLibrary/tl1000.event.severity[{#SNMPINDEX}])=4
+          name: TapeLibrary Event {#SNMPINDEX} warning
+          priority: WARNING
+          opdata: '{ITEM.LASTVALUE1}'
+          type: MULTIPLE
+      - uuid: 40b977379de44cddb89ed4757c226541
+        name: 'TapeLibrary Event {#SNMPINDEX}: Description'
+        type: SNMP_AGENT
+        snmp_oid: 1.3.6.1.4.1.2.6.219.2.3.1.6.{#SNMPINDEX}
+        key: tl1000.event.msg[{#SNMPINDEX}]
+        delay: 1h
+        history: 30d
+        trends: '0'
+        value_type: TEXT
+        tags:
+        - tag: component
+          value: event
+    - uuid: 02815d1b41c14c89948b3c7cb9d6b775
+      name: TapeLibrary Trap Client Discovery
+      type: SNMP_AGENT
+      snmp_oid: discovery[{#TRAP_CLIENT_IP},1.3.6.1.4.1.2.6.219.2.4.4.1.2,{#TRAP_CLIENT_PORT},1.3.6.1.4.1.2.6.219.2.4.4.1.3]
+      key: tl1000.trap.client.discovery
+      delay: 1d
+      lifetime: 7d
+      lifetime_type: DELETE_AFTER
+      enabled_lifetime: 1d
+      enabled_lifetime_type: DISABLE_AFTER
+      description: Discovers configured trap recipients from trapClientTable. Community and username fields are not collected
+        intentionally.
+      item_prototypes:
+      - uuid: 800581221dee40959b9df4fed71e7f4d
+        name: 'TapeLibrary Trap Client {#SNMPINDEX}: IP'
+        type: SNMP_AGENT
+        snmp_oid: 1.3.6.1.4.1.2.6.219.2.4.4.1.2.{#SNMPINDEX}
+        key: tl1000.trap.client.ip[{#SNMPINDEX}]
+        delay: 1d
+        history: 30d
+        trends: '0'
+        value_type: CHAR
+        tags:
+        - tag: component
+          value: trap
+      - uuid: cf2f36c044e545c5b5c54da1ac1c09ba
+        name: 'TapeLibrary Trap Client {#SNMPINDEX}: Port'
+        type: SNMP_AGENT
+        snmp_oid: 1.3.6.1.4.1.2.6.219.2.4.4.1.3.{#SNMPINDEX}
+        key: tl1000.trap.client.port[{#SNMPINDEX}]
+        delay: 1d
+        history: 30d
+        trends: '0'
+        tags:
+        - tag: component
+          value: trap
+      - uuid: 522dcaea192f496ca413c13e9ef4a9a4
+        name: 'TapeLibrary Trap Client {#SNMPINDEX}: Filter'
+        type: SNMP_AGENT
+        snmp_oid: 1.3.6.1.4.1.2.6.219.2.4.4.1.4.{#SNMPINDEX}
+        key: tl1000.trap.client.filter[{#SNMPINDEX}]
+        delay: 1d
+        history: 30d
+        trends: '0'
+        valuemap:
+          name: TapeLibrary Event Severity
+        tags:
+        - tag: component
+          value: trap
+      - uuid: 695379aa094643ac8febd804d959a9cc
+        name: 'TapeLibrary Trap Client {#SNMPINDEX}: State'
+        type: SNMP_AGENT
+        snmp_oid: 1.3.6.1.4.1.2.6.219.2.4.4.1.5.{#SNMPINDEX}
+        key: tl1000.trap.client.state[{#SNMPINDEX}]
+        delay: 1d
+        history: 30d
+        trends: '0'
+        valuemap:
+          name: TapeLibrary Trap Row State
+        tags:
+        - tag: component
+          value: trap
+      - uuid: e957cf0b197b4b74adf58b5565913b12
+        name: 'TapeLibrary Trap Client {#SNMPINDEX}: SNMP Version'
+        type: SNMP_AGENT
+        snmp_oid: 1.3.6.1.4.1.2.6.219.2.4.4.1.6.{#SNMPINDEX}
+        key: tl1000.trap.client.version[{#SNMPINDEX}]
+        delay: 1d
+        history: 30d
+        trends: '0'
+        valuemap:
+          name: TapeLibrary Trap SNMP Version
+        tags:
+        - tag: component
+          value: trap
+      - uuid: 94241f74a776429e9bc5eb1477fcea9e
+        name: 'TapeLibrary Trap Client {#SNMPINDEX}: Notification Type'
+        type: SNMP_AGENT
+        snmp_oid: 1.3.6.1.4.1.2.6.219.2.4.4.1.7.{#SNMPINDEX}
+        key: tl1000.trap.client.type[{#SNMPINDEX}]
+        delay: 1d
+        history: 30d
+        trends: '0'
+        valuemap:
+          name: TapeLibrary Trap Notification Type
+        tags:
+        - tag: component
+          value: trap
+    tags:
+    - tag: class
+      value: hardware
+    - tag: target
+      value: tl1000
+    macros:
+    - macro: '{$TL1000.EVENT.INFO.MATCHES}'
+      value: ^5$
+      description: Event severity values excluded from event discovery triggers. Default 5 = info.
+    valuemaps:
+    - uuid: 393eb052dee6480ea0fd3a7c9134bbd4
+      name: TapeLibrary Status
+      mappings:
+      - value: '1'
+        newvalue: unknown
+      - value: '2'
+        newvalue: ok
+      - value: '3'
+        newvalue: warning
+      - value: '4'
+        newvalue: failed
+    - uuid: 43906f5092964355afd12453347ca8e4
+      name: TapeLibrary Magazine State
+      mappings:
+      - value: '1'
+        newvalue: unknown
+      - value: '2'
+        newvalue: open
+      - value: '3'
+        newvalue: close
+    - uuid: 3d09b4bb7cb94ba8b568acd662a971f0
+      name: TapeLibrary Open/Close State
+      mappings:
+      - value: '1'
+        newvalue: unknown
+      - value: '2'
+        newvalue: open
+      - value: '3'
+        newvalue: close
+    - uuid: a1342caf00164419945ac1a6b218074f
+      name: TapeLibrary Online Status
+      mappings:
+      - value: '1'
+        newvalue: unknown
+      - value: '2'
+        newvalue: online
+      - value: '3'
+        newvalue: offline
+    - uuid: 04f0661d917143c3a2b14a12ef977a8a
+      name: TapeLibrary SCSI Bus
+      mappings:
+      - value: '1'
+        newvalue: unknown
+      - value: '2'
+        newvalue: fast
+      - value: '3'
+        newvalue: ultra
+      - value: '4'
+        newvalue: ultra2
+      - value: '5'
+        newvalue: ultra160
+      - value: '6'
+        newvalue: ultra320
+    - uuid: a3f5119bd9cf482ab28905fa444ac991
+      name: TapeLibrary Drive State
+      mappings:
+      - value: '1'
+        newvalue: unknown
+      - value: '2'
+        newvalue: empty
+      - value: '3'
+        newvalue: cartridgeIn
+      - value: '4'
+        newvalue: writing
+      - value: '5'
+        newvalue: reading
+      - value: '6'
+        newvalue: rewinding
+      - value: '7'
+        newvalue: locating
+      - value: '8'
+        newvalue: cleaning
+    - uuid: 089d04516cc640fbb97fd5d5a4dfc993
+      name: TapeLibrary Drive Status
+      mappings:
+      - value: '1'
+        newvalue: unknown
+      - value: '2'
+        newvalue: ok
+      - value: '3'
+        newvalue: needClean
+      - value: '4'
+        newvalue: warning
+      - value: '5'
+        newvalue: failed
+    - uuid: 20ebe3b77ee949d4b0b8765da5825de5
+      name: TapeLibrary Slot Type
+      mappings:
+      - value: '1'
+        newvalue: unknown
+      - value: '2'
+        newvalue: slot
+      - value: '3'
+        newvalue: ieslot
+      - value: '4'
+        newvalue: drive
+    - uuid: a938482da97f42a09f61ce810ca4d985
+      name: TapeLibrary Event Unit
+      mappings:
+      - value: '1'
+        newvalue: other
+      - value: '2'
+        newvalue: controller
+      - value: '3'
+        newvalue: drive1
+      - value: '4'
+        newvalue: drive2
+    - uuid: 9871e229c373484b92d5d14154c5c42f
+      name: TapeLibrary Event Severity
+      mappings:
+      - value: '1'
+        newvalue: unknown
+      - value: '2'
+        newvalue: emergency
+      - value: '3'
+        newvalue: error
+      - value: '4'
+        newvalue: warning
+      - value: '5'
+        newvalue: info
+    - uuid: 7ff8e11b785d4240bb7ec6a1b5a5d3fb
+      name: TapeLibrary Trap Row State
+      mappings:
+      - value: '1'
+        newvalue: rowDestroy
+      - value: '2'
+        newvalue: rowInactive
+      - value: '3'
+        newvalue: rowActive
+    - uuid: 6444365bbae14135ab333ef500438a4e
+      name: TapeLibrary Trap SNMP Version
+      mappings:
+      - value: '0'
+        newvalue: SNMPv1
+      - value: '1'
+        newvalue: SNMPv2c
+      - value: '2'
+        newvalue: SNMPv3
+    - uuid: 4176fc6bf3f94648b30005195ff3d410
+      name: TapeLibrary Trap Notification Type
+      mappings:
+      - value: '0'
+        newvalue: trap
+      - value: '1'
+        newvalue: inform
