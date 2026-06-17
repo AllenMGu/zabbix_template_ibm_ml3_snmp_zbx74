@@ -1,0 +1,3363 @@
+zabbix_export:
+  version: '7.4'
+  template_groups:
+    - uuid: 5f436cd6c7df45babbbd9611217f2557
+      name: 'Templates/Kstar UPS'
+  templates:
+    - uuid: e2c7ce4b455a4d95a2fd226f73cbd50f
+      template: 'Kstar UPS PPC by SNMP'
+      name: 'Kstar UPS PPC by SNMP'
+      description: |
+        Kstar UPS SNMP card template generated from the uploaded PPC MIB. Supports SNMP polling, table discovery, basic UPS health triggers, graphs, and SNMP trap capture.
+        
+        Revision v3: optional PPC MIB branches that commonly return No Such Object on Kstar SNMP cards are disabled by default to keep Latest data clean. Core UPS health/battery/input/output/bypass/environment items remain enabled.
+        
+        V4 updates:
+        - Environment security trigger now alarms only on abnormal(2); value 0 is treated as not-installed/unused to avoid false alarms on empty dry-contact/security channels.
+        - Smart battery temperature and three-phase battery temperature are scaled by 0.1 according to the PPC point table.
+        - Temperature trigger names are split to identify smart vs three-phase battery source.
+      groups:
+        - name: 'Templates/Kstar UPS'
+      items:
+        - uuid: ff99e26f66df4b24bf6eef1fd961c61e
+          name: 'Kstar PPC: mconfig traps receivers entry walk'
+          type: SNMP_AGENT
+          snmp_oid: 'walk[1.3.6.1.4.1.935.2.1.2.1]'
+          key: kstar.ppc.mconfig.traps.receivers.entry.walk
+          delay: 5m
+          history: '0'
+          value_type: TEXT
+          status: DISABLED
+          description: |
+            Master SNMP walk item used by dependent discovery rules and item prototypes. Uses table entry root walk[] OID to avoid Zabbix import snmp_oid length limits.
+            
+            Disabled in v3 because this optional PPC OID/table is not implemented on some Kstar SNMP cards and appears as unsupported. Enable manually only if snmpwalk confirms this OID exists on your card.
+          tags:
+            - tag: component
+              value: config
+            - tag: role
+              value: raw
+        - uuid: e6b39b2de25e464caa645c158c632759
+          name: 'Kstar PPC: mconfig traps receivers num'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.2.1.1.0
+          key: kstar.ppc.mconfig.traps.receivers.num
+          delay: 1h
+          history: 30d
+          description: 'The number of managers to send traps to.'
+          tags:
+            - tag: component
+              value: config
+        - uuid: 3b7ef90b83fa4988b2564e9bc5d861ea
+          name: 'Kstar PPC: UPS base battery last replace date'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.2.1.3.0
+          key: kstar.ppc.ups.base.battery.last.replace.date
+          delay: 1h
+          history: 30d
+          value_type: CHAR
+          description: 'The date when the UPS system''s batteries were last replaced in mm/dd/yy format. For UPS models, this value is originally set in the factory. When the UPS batteries are replaced, this value should be reset by the administrator.'
+          tags:
+            - tag: component
+              value: battery
+        - uuid: af6d131a067e4e1db2ecb8f77d318301
+          name: 'Kstar PPC: UPS base battery status'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.2.1.1.0
+          key: kstar.ppc.ups.base.battery.status
+          history: 30d
+          description: 'The status of the UPS batteries. A batteryLow(3) value indicates the UPS will be unable to sustain the current load, and its services will be lost if power is not restored. The amount of run time in reserve at the time of low battery can be configured by the upsSmartConfigLowBatteryRunTime.'
+          valuemap:
+            name: 'Kstar PPC::upsBaseBatteryStatus'
+          tags:
+            - tag: component
+              value: battery
+          triggers:
+            - uuid: 1fda9f468dec4a1fbcea73b4cc1a4bf5
+              expression: 'last(/Kstar UPS PPC by SNMP/kstar.ppc.ups.base.battery.status)=3'
+              name: 'Kstar PPC: Battery status is not normal'
+              opdata: 'Current status: {ITEM.LASTVALUE1}'
+              priority: HIGH
+              description: 'UPS battery status is batteryLow(3).'
+              tags:
+                - tag: scope
+                  value: availability
+        - uuid: 7cadf4f0c9074b1682280982bb1d7ca4
+          name: 'Kstar PPC: UPS base battery time on battery'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.2.1.2.0
+          key: kstar.ppc.ups.base.battery.time.on.battery
+          history: 30d
+          units: s
+          description: 'The elapsed time in seconds since the UPS has switched to battery power.'
+          tags:
+            - tag: component
+              value: battery
+        - uuid: 8acc9578eeec44d4b9783ddc39aa490f
+          name: 'Kstar PPC: UPS base config device entry walk'
+          type: SNMP_AGENT
+          snmp_oid: 'walk[1.3.6.1.4.1.935.1.1.1.5.1.2.1]'
+          key: kstar.ppc.ups.base.config.device.entry.walk
+          delay: 5m
+          history: '0'
+          value_type: TEXT
+          status: DISABLED
+          description: |
+            Master SNMP walk item used by dependent discovery rules and item prototypes. Uses table entry root walk[] OID to avoid Zabbix import snmp_oid length limits.
+            
+            Disabled in v3 because this optional PPC OID/table is not implemented on some Kstar SNMP cards and appears as unsupported. Enable manually only if snmpwalk confirms this OID exists on your card.
+          tags:
+            - tag: component
+              value: config
+            - tag: role
+              value: raw
+        - uuid: 5ff1160bf7964dd0b5f88a264bb2bde1
+          name: 'Kstar PPC: UPS base config num devices'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.5.1.1.0
+          key: kstar.ppc.ups.base.config.num.devices
+          delay: 1h
+          history: 30d
+          description: 'The number of devices that are plugged into the UPS.'
+          tags:
+            - tag: component
+              value: config
+        - uuid: 9300ccfd63f84489963b4494598ba96e
+          name: 'Kstar PPC: UPS base control conserve battery'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.6.1.1.0
+          key: kstar.ppc.ups.base.control.conserve.battery
+          history: 30d
+          description: 'Setting this variable to turnUpsOffToConserveBattery(2) causes a UPS on battery to be put into ''sleep'' mode immediately. The (10) means suspending time(10 minutes) before turn off UPS. UPS will turn back on when utility power is restored. Attempting to turn off a UPS that is not on battery will result in a badValue error. Setting this value to noTurnOffUps(1) has no effect. The value noTurnOffUps(1) will always be returned when the variable is read.'
+          valuemap:
+            name: 'Kstar PPC::upsBaseControlConserveBattery'
+          tags:
+            - tag: component
+              value: battery
+        - uuid: 2add2876ebac477fa3eddab42eb718ff
+          name: 'Kstar PPC: UPS base ident model'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.1.1.1.0
+          key: kstar.ppc.ups.base.ident.model
+          delay: 1h
+          history: 30d
+          value_type: CHAR
+          description: 'The UPS model name (e.g. ''Intelligent 8000E 900VA'').'
+          tags:
+            - tag: component
+              value: inventory
+        - uuid: 2f8b744e602545d390f017bae632f288
+          name: 'Kstar PPC: UPS base ident UPS name'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.1.1.2.0
+          key: kstar.ppc.ups.base.ident.ups.name
+          delay: 1h
+          history: 30d
+          value_type: CHAR
+          description: 'An 8 byte ID string identifying the UPS. This object can be set by the administrator.'
+          tags:
+            - tag: component
+              value: inventory
+        - uuid: e929bf4a352143f4bfea0c49a2207a79
+          name: 'Kstar PPC: UPS base input phase'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.3.1.1.0
+          key: kstar.ppc.ups.base.input.phase
+          history: 30d
+          description: 'Number of AC input phases.'
+          tags:
+            - tag: component
+              value: input
+        - uuid: 44671aa5793d4c50ae9bc0f5f4aa0914
+          name: 'Kstar PPC: UPS base output phase'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.4.1.2.0
+          key: kstar.ppc.ups.base.output.phase
+          history: 30d
+          description: 'Number of output phases.'
+          tags:
+            - tag: component
+              value: output
+        - uuid: fec6fe31ad824a90915676e35fb4baf0
+          name: 'Kstar PPC: UPS base output status'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.4.1.1.0
+          key: kstar.ppc.ups.base.output.status
+          history: 30d
+          description: 'The current state of the UPS. If the UPS is unable to determine the state of the UPS this variable is set to unknown(1).'
+          valuemap:
+            name: 'Kstar PPC::upsBaseOutputStatus'
+          tags:
+            - tag: component
+              value: output
+          triggers:
+            - uuid: 7115b2c0dc164e53b1a0a6b43c639fd3
+              expression: 'last(/Kstar UPS PPC by SNMP/kstar.ppc.ups.base.output.status)<>2'
+              name: 'Kstar PPC: Output status is not online'
+              opdata: 'Current status: {ITEM.LASTVALUE1}'
+              priority: WARNING
+              description: 'PPC MIB upsBaseOutputStatus onLine is 2.'
+              tags:
+                - tag: scope
+                  value: availability
+        - uuid: d71c72303f1d487f9560530a073f894b
+          name: 'Kstar PPC: UPS discharger control discharge'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.10.3.1.0
+          key: kstar.ppc.ups.discharger.control.discharge
+          history: 30d
+          description: 'Setting this variable to start(2) causes the UPS to discharge. When in this state, the UPS input will be cut down, and the battery starts to discharging.'
+          valuemap:
+            name: 'Kstar PPC::upsDischargerControlDischarge'
+          tags:
+            - tag: component
+              value: control
+        - uuid: c7a9d9215dc240b0b28601f7a55eb903
+          name: 'Kstar PPC: UPS discharger data status'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.10.1.1.0
+          key: kstar.ppc.ups.discharger.data.status
+          history: 30d
+          description: 'Present discharger status. The charge(1) indicates that input turns on. The discharge(2) indicates that input turns off.'
+          valuemap:
+            name: 'Kstar PPC::upsDischargerDataStatus'
+          tags:
+            - tag: component
+              value: discharger
+        - uuid: f9f3ef0600544c0a9a2d99390fd41112
+          name: 'Kstar PPC: UPS discharger settings end capacity'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.10.2.2.0
+          key: kstar.ppc.ups.discharger.settings.end.capacity
+          history: 30d
+          units: '%'
+          description: 'The battery capacity to stop discharge operation.'
+          tags:
+            - tag: component
+              value: discharger
+        - uuid: b3ee42ca46cd462fb9750e642e7545e3
+          name: 'Kstar PPC: UPS discharger settings end volt'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.10.2.1.0
+          key: kstar.ppc.ups.discharger.settings.end.volt
+          history: 30d
+          value_type: FLOAT
+          units: V
+          description: 'The battery voltage in 1/10 VAC to stop discharge operation.'
+          preprocessing:
+            - type: MULTIPLIER
+              parameters:
+                - '0.1'
+          tags:
+            - tag: component
+              value: discharger
+        - uuid: 9721a87558064231a2a6b2b307e407ea
+          name: 'Kstar PPC: UPS discharger settings periodic day'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.10.2.4.0
+          key: kstar.ppc.ups.discharger.settings.periodic.day
+          history: 30d
+          description: 'Day for discharge task. The range 0~6 for weekly discharge. The range 1~31 for monthly discharge.'
+          tags:
+            - tag: component
+              value: discharger
+        - uuid: 0e5a79bcc1854186af3be653641ff765
+          name: 'Kstar PPC: UPS discharger settings periodic duration'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.10.2.6.0
+          key: kstar.ppc.ups.discharger.settings.periodic.duration
+          history: 30d
+          units: m
+          description: 'Duration for periodic discharge in 1 minute.'
+          tags:
+            - tag: component
+              value: discharger
+        - uuid: 81b3bd2a19894de09606df537489a572
+          name: 'Kstar PPC: UPS discharger settings periodic time'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.10.2.5.0
+          key: kstar.ppc.ups.discharger.settings.periodic.time
+          history: 30d
+          status: DISABLED
+          description: |
+            Time in format 'hh:mm' to start periodic discharge.
+            
+            Disabled in v3 because this optional PPC OID/table is not implemented on some Kstar SNMP cards and appears as unsupported. Enable manually only if snmpwalk confirms this OID exists on your card.
+          tags:
+            - tag: component
+              value: discharger
+        - uuid: 54cb60b15cae42149c67d09af504ed26
+          name: 'Kstar PPC: UPS discharger settings periodic type'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.10.2.3.0
+          key: kstar.ppc.ups.discharger.settings.periodic.type
+          history: 30d
+          description: 'Type of periodic discharge. The disable(0) indicates disable periodic discharge. The weekly(2) indicates discharge at the specified day in week. The monthly(3) indicates discharge at the specified day in month.'
+          valuemap:
+            name: 'Kstar PPC::upsDischargerSettingsPeriodicType'
+          tags:
+            - tag: component
+              value: discharger
+        - uuid: 9c032aabad4845f780e83488289f9288
+          name: 'Kstar PPC: UPS discharger settings timing entry walk'
+          type: SNMP_AGENT
+          snmp_oid: 'walk[1.3.6.1.4.1.935.1.1.1.10.2.8.1]'
+          key: kstar.ppc.ups.discharger.settings.timing.entry.walk
+          delay: 5m
+          history: '0'
+          value_type: TEXT
+          status: DISABLED
+          description: |
+            Master SNMP walk item used by dependent discovery rules and item prototypes. Uses table entry root walk[] OID to avoid Zabbix import snmp_oid length limits.
+            
+            Disabled in v3 because this optional PPC OID/table is not implemented on some Kstar SNMP cards and appears as unsupported. Enable manually only if snmpwalk confirms this OID exists on your card.
+          tags:
+            - tag: component
+              value: discharger
+            - tag: role
+              value: raw
+        - uuid: eb006b4d98e344ef8f38ddb1865a3959
+          name: 'Kstar PPC: UPS discharger settings timing num'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.10.2.7.0
+          key: kstar.ppc.ups.discharger.settings.timing.num
+          history: 30d
+          description: 'Number of timing discharge tasks.'
+          tags:
+            - tag: component
+              value: discharger
+        - uuid: 88c0be7f03f34ec3b9230d6826454024
+          name: 'Kstar PPC: UPS env entry walk'
+          type: SNMP_AGENT
+          snmp_oid: 'walk[1.3.6.1.4.1.935.1.1.1.9.1.2.1]'
+          key: kstar.ppc.ups.env.entry.walk
+          delay: 5m
+          history: '0'
+          value_type: TEXT
+          description: 'Master SNMP walk item used by dependent discovery rules and item prototypes. Uses table entry root walk[] OID to avoid Zabbix import snmp_oid length limits.'
+          tags:
+            - tag: component
+              value: environment
+            - tag: role
+              value: raw
+        - uuid: 4795b123ce9d429fbdcae588d5b722dd
+          name: 'Kstar PPC: UPS env num devices'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.9.1.1.0
+          key: kstar.ppc.ups.env.num.devices
+          history: 30d
+          description: 'The number of environment sensor devices.'
+          tags:
+            - tag: component
+              value: environment
+        - uuid: d2caa766d8c54cfc924b616c6097f176
+          name: 'Kstar PPC: UPS env over humidity'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.9.2.3.0
+          key: kstar.ppc.ups.env.over.humidity
+          history: 30d
+          units: '%'
+          description: 'Alarm dupsAlarmOverHumidity on when the environment humidity over the value.'
+          tags:
+            - tag: component
+              value: environment
+        - uuid: f95a98fe2aa3410990289d3ad944b239
+          name: 'Kstar PPC: UPS env over temperature'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.9.2.1.0
+          key: kstar.ppc.ups.env.over.temperature
+          history: 30d
+          units: °C
+          description: 'Alarm dupsAlarmOverTemperature on when the environment temperature over the value.'
+          tags:
+            - tag: component
+              value: environment
+        - uuid: 289265e51d1f404fae29f033345a4da5
+          name: 'Kstar PPC: UPS env under humidity'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.9.2.4.0
+          key: kstar.ppc.ups.env.under.humidity
+          history: 30d
+          units: '%'
+          description: 'Alarm dupsAlarmUnderHumidity on when the environment humidity below the value.'
+          tags:
+            - tag: component
+              value: environment
+        - uuid: d7d27b4a732a4aa188782e93662ac1ce
+          name: 'Kstar PPC: UPS env under temperature'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.9.2.2.0
+          key: kstar.ppc.ups.env.under.temperature
+          history: 30d
+          units: °C
+          description: 'Alarm dupsAlarmUnderTemperature on when the environment temperature below the value.'
+          tags:
+            - tag: component
+              value: environment
+        - uuid: 3a9fa918314047408ba7c5f87c13f61e
+          name: 'Kstar PPC: UPS inspector data cell entry walk'
+          type: SNMP_AGENT
+          snmp_oid: 'walk[1.3.6.1.4.1.935.1.1.1.11.1.4.1]'
+          key: kstar.ppc.ups.inspector.data.cell.entry.walk
+          delay: 5m
+          history: '0'
+          value_type: TEXT
+          status: DISABLED
+          description: |
+            Master SNMP walk item used by dependent discovery rules and item prototypes. Uses table entry root walk[] OID to avoid Zabbix import snmp_oid length limits.
+            
+            Disabled in v3 because this optional PPC OID/table is not implemented on some Kstar SNMP cards and appears as unsupported. Enable manually only if snmpwalk confirms this OID exists on your card.
+          tags:
+            - tag: component
+              value: inspector
+            - tag: role
+              value: raw
+        - uuid: e2a91c03cff64ff287aeee18d7f48ce1
+          name: 'Kstar PPC: UPS inspector data cell num'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.11.1.3.0
+          key: kstar.ppc.ups.inspector.data.cell.num
+          history: 30d
+          description: 'Total number of single battery units.'
+          tags:
+            - tag: component
+              value: inspector
+        - uuid: 3e787708e6c545c49d6d3d45f83b2705
+          name: 'Kstar PPC: UPS inspector data group entry walk'
+          type: SNMP_AGENT
+          snmp_oid: 'walk[1.3.6.1.4.1.935.1.1.1.11.1.2.1]'
+          key: kstar.ppc.ups.inspector.data.group.entry.walk
+          delay: 5m
+          history: '0'
+          value_type: TEXT
+          status: DISABLED
+          description: |
+            Master SNMP walk item used by dependent discovery rules and item prototypes. Uses table entry root walk[] OID to avoid Zabbix import snmp_oid length limits.
+            
+            Disabled in v3 because this optional PPC OID/table is not implemented on some Kstar SNMP cards and appears as unsupported. Enable manually only if snmpwalk confirms this OID exists on your card.
+          tags:
+            - tag: component
+              value: inspector
+            - tag: role
+              value: raw
+        - uuid: e85076691387465a9f2c25ed8f32f268
+          name: 'Kstar PPC: UPS inspector data group num'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.11.1.1.0
+          key: kstar.ppc.ups.inspector.data.group.num
+          history: 30d
+          description: 'Number of battery groups.'
+          tags:
+            - tag: component
+              value: inspector
+        - uuid: 4ec53155fdc54baea1c474d92c647d16
+          name: 'Kstar PPC: UPS inspector settings cell resistance high alarm'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.11.2.7.0
+          key: kstar.ppc.ups.inspector.settings.cell.resistance.high.alarm
+          history: 30d
+          units: Ω
+          description: 'The alarm value of battery unit resistance high in 1 micro ohm.'
+          tags:
+            - tag: component
+              value: alarm
+        - uuid: 5b605379d4ac4cd5971e905394970f86
+          name: 'Kstar PPC: UPS inspector settings cell resistance unbalance alarm'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.11.2.8.0
+          key: kstar.ppc.ups.inspector.settings.cell.resistance.unbalance.alarm
+          history: 30d
+          units: Ω
+          description: 'The alarm value of battery unit resistance unbalance in 1 micro ohm.'
+          tags:
+            - tag: component
+              value: alarm
+        - uuid: 01f29412ff5e456d9fabfb8c3a2df340
+          name: 'Kstar PPC: UPS inspector settings cell temperature high alarm'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.11.2.6.0
+          key: kstar.ppc.ups.inspector.settings.cell.temperature.high.alarm
+          history: 30d
+          value_type: FLOAT
+          units: °C
+          description: 'The alarm value degrees Centigrade of battery unit pole temperature high in 1/100 degrees Centigrade.'
+          preprocessing:
+            - type: MULTIPLIER
+              parameters:
+                - '0.01'
+          tags:
+            - tag: component
+              value: alarm
+        - uuid: a96643837b0b431085f02bb5fd0a3389
+          name: 'Kstar PPC: UPS inspector settings cell voltage high alarm'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.11.2.3.0
+          key: kstar.ppc.ups.inspector.settings.cell.voltage.high.alarm
+          history: 30d
+          value_type: FLOAT
+          units: V
+          description: 'The alarm value of battery unit voltage high in 1/1000 V.'
+          preprocessing:
+            - type: MULTIPLIER
+              parameters:
+                - '0.001'
+          tags:
+            - tag: component
+              value: alarm
+        - uuid: c90f8f45cebb464c91d849edc66979b9
+          name: 'Kstar PPC: UPS inspector settings cell voltage low alarm'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.11.2.4.0
+          key: kstar.ppc.ups.inspector.settings.cell.voltage.low.alarm
+          history: 30d
+          value_type: FLOAT
+          units: V
+          description: 'The alarm value of battery unit voltage low in 1/1000 V.'
+          preprocessing:
+            - type: MULTIPLIER
+              parameters:
+                - '0.001'
+          tags:
+            - tag: component
+              value: alarm
+        - uuid: cb64023931b14a88a1a978b9f8fda0b7
+          name: 'Kstar PPC: UPS inspector settings cell voltage unbalance alarm'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.11.2.5.0
+          key: kstar.ppc.ups.inspector.settings.cell.voltage.unbalance.alarm
+          history: 30d
+          value_type: FLOAT
+          units: V
+          description: 'The alarm value of battery unit voltage unbalance in 1/1000 V.'
+          preprocessing:
+            - type: MULTIPLIER
+              parameters:
+                - '0.001'
+          tags:
+            - tag: component
+              value: alarm
+        - uuid: bb187bd63dd74d9ba54d261932430831
+          name: 'Kstar PPC: UPS inspector settings charging current high alarm'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.11.2.1.0
+          key: kstar.ppc.ups.inspector.settings.charging.current.high.alarm
+          history: 30d
+          value_type: FLOAT
+          units: A
+          description: 'The alarm value of battery charging current high in 1/10 Amp.'
+          preprocessing:
+            - type: MULTIPLIER
+              parameters:
+                - '0.1'
+          tags:
+            - tag: component
+              value: alarm
+        - uuid: eca3fb7515044ad38027b1822494363f
+          name: 'Kstar PPC: UPS inspector settings cycle resistance test'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.11.2.9.0
+          key: kstar.ppc.ups.inspector.settings.cycle.resistance.test
+          history: 30d
+          units: h
+          description: 'The value of battery unit resistance auto-test cycle alarm in 1 hour.'
+          tags:
+            - tag: component
+              value: test
+        - uuid: ec3a8ce0923f42e5ad03966198ab3a67
+          name: 'Kstar PPC: UPS inspector settings discharging current high alarm'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.11.2.2.0
+          key: kstar.ppc.ups.inspector.settings.discharging.current.high.alarm
+          history: 30d
+          value_type: FLOAT
+          units: A
+          description: 'The alarm value of battery discharging current high in 1/10 Amp.'
+          preprocessing:
+            - type: MULTIPLIER
+              parameters:
+                - '0.1'
+          tags:
+            - tag: component
+              value: alarm
+        - uuid: ddc239a2624b426a8b4ce853e701b2ed
+          name: 'Kstar PPC: UPS smart battery capacity'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.2.2.1.0
+          key: kstar.ppc.ups.smart.battery.capacity
+          history: 30d
+          units: '%'
+          description: 'The remaining battery capacity expressed in percent of full capacity.'
+          tags:
+            - tag: component
+              value: battery
+          triggers:
+            - uuid: 623f909a312148b598073c68591cf153
+              expression: 'last(/Kstar UPS PPC by SNMP/kstar.ppc.ups.smart.battery.capacity)<{$UPS.BATTERY.CHARGE.MIN.WARN}'
+              name: 'Kstar PPC: Battery charge is low'
+              opdata: 'Charge: {ITEM.LASTVALUE1}'
+              priority: WARNING
+              tags:
+                - tag: scope
+                  value: capacity
+        - uuid: 719564ffa428437c89c9bed1a18b24b1
+          name: 'Kstar PPC: UPS smart battery current'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.2.2.7.0
+          key: kstar.ppc.ups.smart.battery.current
+          history: 30d
+          value_type: FLOAT
+          units: A
+          description: 'The present battery current.'
+          preprocessing:
+            - type: MULTIPLIER
+              parameters:
+                - '0.1'
+          tags:
+            - tag: component
+              value: battery
+        - uuid: ec0686e9fe984194ad935e422383347c
+          name: 'Kstar PPC: UPS smart battery full charge voltage'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.2.2.6.0
+          key: kstar.ppc.ups.smart.battery.full.charge.voltage
+          history: 30d
+          description: 'The fully charged battery voltage of the battery system used in the UPS, expressed in tenths of a volt.'
+          tags:
+            - tag: component
+              value: battery
+        - uuid: 8f3ffe9b975948d1bd48ac190706fb5a
+          name: 'Kstar PPC: UPS smart battery replace indicator'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.2.2.5.0
+          key: kstar.ppc.ups.smart.battery.replace.indicator
+          history: 30d
+          description: 'Indicates whether the UPS batteries need replacing.'
+          valuemap:
+            name: 'Kstar PPC::upsSmartBatteryReplaceIndicator'
+          tags:
+            - tag: component
+              value: battery
+          triggers:
+            - uuid: 56409fbc92164173a741a976b350805e
+              expression: 'last(/Kstar UPS PPC by SNMP/kstar.ppc.ups.smart.battery.replace.indicator)=2'
+              name: 'Kstar PPC: Battery needs replacement'
+              opdata: 'Current value: {ITEM.LASTVALUE1}'
+              priority: HIGH
+              tags:
+                - tag: scope
+                  value: availability
+        - uuid: 0c305c8e77db4fa5a3d75c7e64a1d808
+          name: 'Kstar PPC: UPS smart battery run time remaining'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.2.2.4.0
+          key: kstar.ppc.ups.smart.battery.run.time.remaining
+          history: 30d
+          units: s
+          description: 'The UPS battery run time remaining before battery exhaustion, in seconds.'
+          tags:
+            - tag: component
+              value: battery
+          triggers:
+            - uuid: 761d6fa0a5894c53bd31ec2e2833d204
+              expression: 'last(/Kstar UPS PPC by SNMP/kstar.ppc.ups.smart.battery.run.time.remaining)<{$UPS.RUNTIME.MIN.WARN}*60'
+              name: 'Kstar PPC: Estimated runtime is low'
+              opdata: 'Runtime: {ITEM.LASTVALUE1}'
+              priority: WARNING
+              tags:
+                - tag: scope
+                  value: capacity
+        - uuid: 6326e3bfe3d147af98e37d7a493c5d2a
+          name: 'Kstar PPC: UPS smart battery temperature'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.2.2.3.0
+          key: kstar.ppc.ups.smart.battery.temperature
+          history: 30d
+          value_type: FLOAT
+          units: °C
+          description: 'The current internal UPS temperature expressed in tenths of a Celsius degree.'
+          preprocessing:
+            - type: MULTIPLIER
+              parameters:
+                - '0.1'
+          tags:
+            - tag: component
+              value: battery
+          triggers:
+            - uuid: def3e78c59f24be0a086782454cbec30
+              expression: 'last(/Kstar UPS PPC by SNMP/kstar.ppc.ups.smart.battery.temperature)>{$UPS.TEMP.MAX.WARN}'
+              name: 'Kstar PPC: Smart battery temperature is high'
+              opdata: 'Smart battery temp: {ITEM.LASTVALUE1}'
+              priority: WARNING
+              tags:
+                - tag: scope
+                  value: availability
+        - uuid: bcb0c00f748e4c9db6564d4dd4d7e61c
+          name: 'Kstar PPC: UPS smart battery voltage'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.2.2.2.0
+          key: kstar.ppc.ups.smart.battery.voltage
+          history: 30d
+          value_type: FLOAT
+          units: V
+          description: 'The current battery voltage expressed in 1/100 VDC.'
+          preprocessing:
+            - type: MULTIPLIER
+              parameters:
+                - '0.01'
+          tags:
+            - tag: component
+              value: battery
+        - uuid: ca50ac04f1304ed084c7530cfcb94983
+          name: 'Kstar PPC: UPS smart config alarm'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.5.2.4.0
+          key: kstar.ppc.ups.smart.config.alarm
+          history: 30d
+          description: 'A flag indicating how the UPS should handle audible line fail alarms.'
+          valuemap:
+            name: 'Kstar PPC::upsSmartConfigAlarm'
+          tags:
+            - tag: component
+              value: alarm
+        - uuid: bc2b603dd1dd469d827d5cec2207c1d0
+          name: 'Kstar PPC: UPS smart config alarm timer'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.5.2.5.0
+          key: kstar.ppc.ups.smart.config.alarm.timer
+          history: 30d
+          description: 'The time in seconds after initial line failure at which the UPS begins emitting audible alarms (beeping). This timer is observerd only if the value of extControlAlarm is timed(1). Allowed values are 0 or 30 seconds. If a value other than a supported value is provided in a set request, the UPS interprets it as a the next lower acceptable value. If the provided value is lower than the lowest acceptable value, the lowest acceptable value is used.'
+          tags:
+            - tag: component
+              value: alarm
+        - uuid: 842eef80199144d39ed837886e5b13de
+          name: 'Kstar PPC: UPS smart config batt maintenance cycle'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.5.2.19.0
+          key: kstar.ppc.ups.smart.config.batt.maintenance.cycle
+          delay: 1h
+          history: 30d
+          status: DISABLED
+          description: |
+            UPS battery maintenance cycle.
+            
+            Disabled in v3 because this optional PPC OID/table is not implemented on some Kstar SNMP cards and appears as unsupported. Enable manually only if snmpwalk confirms this OID exists on your card.
+          tags:
+            - tag: component
+              value: config
+        - uuid: c92c76987e0e41a8af7761120992dd8f
+          name: 'Kstar PPC: UPS smart config batt remain'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.5.2.18.0
+          key: kstar.ppc.ups.smart.config.batt.remain
+          delay: 1h
+          history: 30d
+          units: m
+          description: 'Alarm value of UPS battery remain time.'
+          tags:
+            - tag: component
+              value: config
+        - uuid: 3c51f878a7ed435083304cf2aabc4b27
+          name: 'Kstar PPC: UPS smart config high transfer volt'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.5.2.2.0
+          key: kstar.ppc.ups.smart.config.high.transfer.volt
+          delay: 1h
+          history: 30d
+          value_type: FLOAT
+          units: V
+          description: 'The maximum line voltage in 1/10 VAC.'
+          preprocessing:
+            - type: MULTIPLIER
+              parameters:
+                - '0.1'
+          tags:
+            - tag: component
+              value: config
+        - uuid: 55af1d39c83e47acac56bc237f80d653
+          name: 'Kstar PPC: UPS smart config load alarm'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.5.2.16.0
+          key: kstar.ppc.ups.smart.config.load.alarm
+          history: 30d
+          description: 'Alarm value of UPS load.'
+          tags:
+            - tag: component
+              value: alarm
+        - uuid: 15ac459ee0df4be59c2d76142de35db5
+          name: 'Kstar PPC: UPS smart config low batt alarm'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.5.2.17.0
+          key: kstar.ppc.ups.smart.config.low.batt.alarm
+          history: 30d
+          description: 'Alarm value of UPS low battery.'
+          tags:
+            - tag: component
+              value: alarm
+        - uuid: 5f0b7a07b2f345b2bb380207adb0e1b8
+          name: 'Kstar PPC: UPS smart config low battery run time'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.5.2.8.0
+          key: kstar.ppc.ups.smart.config.low.battery.run.time
+          history: 30d
+          units: s
+          description: 'The desired run time in seconds once the low battery condition is reached. Allowed values are 120, 300, 420, or 600 seconds. During this time the UPS will produce a constant warning tone which can not be disabled. If a value other than a supported value is provided in a set request, the UPS interprets it as a the next higher acceptable value. If the provided value is higher than the highest acceptable value, the highest acceptable value is used.'
+          tags:
+            - tag: component
+              value: battery
+        - uuid: 12a51655ffe3461e8b87119c62291cf8
+          name: 'Kstar PPC: UPS smart config low transfer volt'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.5.2.3.0
+          key: kstar.ppc.ups.smart.config.low.transfer.volt
+          delay: 1h
+          history: 30d
+          value_type: FLOAT
+          units: V
+          description: 'The minimum line voltage in 1/10 VAC.'
+          preprocessing:
+            - type: MULTIPLIER
+              parameters:
+                - '0.1'
+          tags:
+            - tag: component
+              value: config
+        - uuid: 75a205a9c6b247d4a69c31e2b1b82c06
+          name: 'Kstar PPC: UPS smart config max output vol'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.5.2.13.0
+          key: kstar.ppc.ups.smart.config.max.output.vol
+          history: 30d
+          value_type: FLOAT
+          units: V
+          description: 'Max value of output voltage.'
+          preprocessing:
+            - type: MULTIPLIER
+              parameters:
+                - '0.1'
+          tags:
+            - tag: component
+              value: output
+        - uuid: 25e40c2debf14ad6a2e8ee545b912e64
+          name: 'Kstar PPC: UPS smart config min output vol'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.5.2.14.0
+          key: kstar.ppc.ups.smart.config.min.output.vol
+          history: 30d
+          value_type: FLOAT
+          units: V
+          description: 'Min value of output voltage.'
+          preprocessing:
+            - type: MULTIPLIER
+              parameters:
+                - '0.1'
+          tags:
+            - tag: component
+              value: output
+        - uuid: a7461231b60f4a549ecb078902069cff
+          name: 'Kstar PPC: UPS smart config min return capacity'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.5.2.6.0
+          key: kstar.ppc.ups.smart.config.min.return.capacity
+          delay: 1h
+          history: 30d
+          description: 'The minimum battery capacity as a percent of full capacity required before the UPS will return from a low battery shutdown condition. In other words, the UPS will not re-energize the output until the battery capacity is equal to this value. Allowed values are 0, 10, 25, or 90 percent. If a value other than a supported value is provided in a set request, the UPS interprets it as a the next higher acceptable value. If the provided value is higher than the highest acceptable value, the highest acceptable value is used.'
+          tags:
+            - tag: component
+              value: config
+        - uuid: d38482f23b5a4e74b479da6c3609a9a6
+          name: 'Kstar PPC: UPS smart config rated output voltage'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.5.2.1.0
+          key: kstar.ppc.ups.smart.config.rated.output.voltage
+          history: 30d
+          value_type: FLOAT
+          units: V
+          description: 'The nominal output voltage from the UPS in 1/10 VAC. Possible values are 1000, 1200, 2080, 2200, 2250, 2300 and 2400. NOTE: Only units that are 2200, 2250, 2300 and 2400 can be changed. Allowable values are 2200, 2250, 2300 and 2400. For these adjustable units, if a value other than a supported value is provided in a set request, the UPS interprets it as the next lower acceptable value. If the provided value is lower than the lowest acceptable value, the lowest acceptable value is used.'
+          preprocessing:
+            - type: MULTIPLIER
+              parameters:
+                - '0.1'
+          tags:
+            - tag: component
+              value: output
+        - uuid: 9d95632e1aad4222bbcbc7ebb2394b2a
+          name: 'Kstar PPC: UPS smart config return delay'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.5.2.9.0
+          key: kstar.ppc.ups.smart.config.return.delay
+          delay: 1h
+          history: 30d
+          units: s
+          description: 'The delay in seconds after utility line power returns before the UPS will turn on. This value is also used when the UPS comes out of a reboot and before the UPS wakes up from ''sleep'' mode. Allowed values are 0, 60, 180 and 300 seconds. If a value other than a supported value is provided in a set request, the UPS interprets it as a the next higher acceptable value. If the provided value is higher than the highest acceptable value, the highest acceptable value is used.'
+          tags:
+            - tag: component
+              value: config
+        - uuid: ccd9b16dbdc0470696e548ee2571f5c5
+          name: 'Kstar PPC: UPS smart config sensitivity'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.5.2.7.0
+          key: kstar.ppc.ups.smart.config.sensitivity
+          delay: 1h
+          history: 30d
+          description: 'The sensitivity of the UPS to utility line abnormalities or noises.'
+          valuemap:
+            name: 'Kstar PPC::upsSmartConfigSensitivity'
+          tags:
+            - tag: component
+              value: config
+        - uuid: b682e07991784308a3913ba738743cc3
+          name: 'Kstar PPC: UPS smart config set eeprom defaults'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.5.2.12.0
+          key: kstar.ppc.ups.smart.config.set.eeprom.defaults
+          delay: 1h
+          history: 30d
+          description: 'WRITE: Resets the UPS EEPROM variables to default values. READ: returns 0'
+          valuemap:
+            name: 'Kstar PPC::upsSmartConfigSetEEPROMDefaults'
+          tags:
+            - tag: component
+              value: config
+        - uuid: a25e32ecca3f4756b97850351d1e0419
+          name: 'Kstar PPC: UPS smart config shutoff delay'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.5.2.10.0
+          key: kstar.ppc.ups.smart.config.shutoff.delay
+          delay: 1h
+          history: 30d
+          units: s
+          description: 'The delay in seconds the UPS remains on after being told to turn off. Allowed values are 12, 18, 24, 30, 36, 42, 48, 54, 60, 120, 180, 240, 300, 360, 420, 480, 540, and 600 seconds. If a value other than a supported value is provided in a set request, the UPS interprets it as next higher acceptable value. If the provided value is higher than the highest acceptable value, the highest acceptable value is used.'
+          tags:
+            - tag: component
+              value: config
+        - uuid: fce7d46c9c2b4032aedbbb1aed460383
+          name: 'Kstar PPC: UPS smart config temp alarm'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.5.2.15.0
+          key: kstar.ppc.ups.smart.config.temp.alarm
+          history: 30d
+          units: °C
+          description: 'Alarm value of UPS temperature.'
+          tags:
+            - tag: component
+              value: alarm
+        - uuid: ba64740b6fc24985924d7e0c93e75fb9
+          name: 'Kstar PPC: UPS smart config UPS sleep time'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.5.2.11.0
+          key: kstar.ppc.ups.smart.config.ups.sleep.time
+          delay: 1h
+          history: 30d
+          units: m
+          description: 'The time in minutes for the UPS to go to ''sleep'' when instructed. When in sleep mode, the UPS will not provide output power regardless of the input line state. Once the specified time has elapsed, output power will be restored. This is a configuration setting. The UPS will not go to sleep until told to do so by the manager from a management station. Any input value is allowed, however the UPS only recognizes 0 - 9999 minutes in one minute increments. If the provided value is higher than the highest acceptable value, the highest acceptable value is used.'
+          tags:
+            - tag: component
+              value: config
+        - uuid: 5246608c9fd74e9ab54d6a1eb016b904
+          name: 'Kstar PPC: UPS smart control flash and beep'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.6.2.5.0
+          key: kstar.ppc.ups.smart.control.flash.and.beep
+          history: 30d
+          description: 'UPS to identify itself by lighting all indicators and beeping. Setting this variable to FlashAndBeep(2) causes the UPS lights all panel indicators and beeps. Setting this value to noFlashAndBeep(1) has no effect. The value noFlashAndBeep(1) will always be returned when the variable is read.'
+          valuemap:
+            name: 'Kstar PPC::upsSmartControlFlashAndBeep'
+          tags:
+            - tag: component
+              value: control
+        - uuid: 2a4516d086d74ce6a490c66ea88e1067
+          name: 'Kstar PPC: UPS smart control reboot UPS'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.6.2.2.0
+          key: kstar.ppc.ups.smart.control.reboot.ups
+          history: 30d
+          description: 'Setting this variable to rebootUps(2) causes the UPS to shut off and turn back on. Setting this value to noRebootUps(1) has no effect. The value noRebootUps(1) will always be returned when the variable is read.'
+          valuemap:
+            name: 'Kstar PPC::upsSmartControlRebootUps'
+          tags:
+            - tag: component
+              value: control
+        - uuid: e505083824be427c889d15ac818ef1d7
+          name: 'Kstar PPC: UPS smart control simulate power fail'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.6.2.4.0
+          key: kstar.ppc.ups.smart.control.simulate.power.fail
+          history: 30d
+          description: 'Setting this variable to simulatePowerFailure(2) causes the UPS switch to battery power. Setting this value to noSimulatePowerFailure(1) has no effect. The value noSimulatePowerFailure(1) will always be returned when the variable is read.'
+          valuemap:
+            name: 'Kstar PPC::upsSmartControlSimulatePowerFail'
+          tags:
+            - tag: component
+              value: control
+        - uuid: 32d13e5ba94c48f794cffd712d84f3c3
+          name: 'Kstar PPC: UPS smart control turn on UPS load'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.6.2.6.0
+          key: kstar.ppc.ups.smart.control.turn.on.ups.load
+          history: 30d
+          description: 'Setting this variable to upsSmartControlTurnOnUpsLoad(2) causes the UPS switch back to utility power if utility power is present. Setting this value to noUpsSmartControlTurnOnUpsLoad(1) has no effect. The value noUpsSmartControlTurnOnUpsLoad(1) will always be returned when the variable is read.'
+          valuemap:
+            name: 'Kstar PPC::upsSmartControlTurnOnUpsLoad'
+          tags:
+            - tag: component
+              value: control
+        - uuid: 5b415e12803f48af96241da7bb256de1
+          name: 'Kstar PPC: UPS smart control UPS off'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.6.2.1.0
+          key: kstar.ppc.ups.smart.control.ups.off
+          history: 30d
+          description: 'Setting this variable to turnUpsOff(2) causes the UPS to shut off. When in this state, the UPS will not provide output power regardless of the input line state. The on/off switch on the UPS must be toggled for the UPS to return to operation. Setting this value to noTurnUpsOff(1) has no effect. The value noTurnUpsOff(1) will always be returned when the variable is read.'
+          valuemap:
+            name: 'Kstar PPC::upsSmartControlUpsOff'
+          tags:
+            - tag: component
+              value: control
+        - uuid: 9e792ef5c753411ca12959ea30bf1857
+          name: 'Kstar PPC: UPS smart control UPS sleep'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.6.2.3.0
+          key: kstar.ppc.ups.smart.control.ups.sleep
+          history: 30d
+          description: 'Setting this variable to putUpsToSleep(2) causes the UPS to go to sleep for the time specified by upsSmartConfigUpsSleepTime. When in sleep mode, the UPS will not provide output power regardless of the input line state. Once the specified time has elapsed, output power will be restored. Setting this value to noPutUpsToSleep(1) has no effect. The value noPutUpsToSleep(1) will always be returned when the variable is read.'
+          valuemap:
+            name: 'Kstar PPC::upsSmartControlUpsSleep'
+          tags:
+            - tag: component
+              value: control
+        - uuid: 9cc04b81cb9d488baffd1df275ac0b0e
+          name: 'Kstar PPC: UPS smart ident agent firmware revision'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.1.2.4.0
+          key: kstar.ppc.ups.smart.ident.agent.firmware.revision
+          delay: 1h
+          history: 30d
+          value_type: CHAR
+          description: 'The firmware revision of the UPS SNMP Proxy agent.'
+          tags:
+            - tag: component
+              value: inventory
+        - uuid: adc4688c8f4d486ab820ad9a8b65e462
+          name: 'Kstar PPC: UPS smart ident date of manufacture'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.1.2.2.0
+          key: kstar.ppc.ups.smart.ident.date.of.manufacture
+          delay: 1h
+          history: 30d
+          value_type: CHAR
+          description: 'The date when the UPS was manufactured in mm/dd/yy format.'
+          tags:
+            - tag: component
+              value: inventory
+        - uuid: 6277277eb55847edbdb882ac5f3f7f53
+          name: 'Kstar PPC: UPS smart ident firmware revision'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.1.2.1.0
+          key: kstar.ppc.ups.smart.ident.firmware.revision
+          delay: 1h
+          history: 30d
+          value_type: CHAR
+          description: 'The firmware revision of the UPS system.'
+          tags:
+            - tag: component
+              value: inventory
+        - uuid: 5f31ba545844467a9f913a30d1970654
+          name: 'Kstar PPC: UPS smart ident UPS serial number'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.1.2.3.0
+          key: kstar.ppc.ups.smart.ident.ups.serial.number
+          delay: 1h
+          history: 30d
+          value_type: CHAR
+          description: 'An 8-character string identifying the serial number of the UPS internal microprocessor. This number is set at the factory. NOTE: This number does NOT correspond to the serial number on the rear of the UPS.'
+          tags:
+            - tag: component
+              value: inventory
+        - uuid: f0388452ad9b49f4afc712d68dd93c11
+          name: 'Kstar PPC: UPS smart input frequency'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.3.2.4.0
+          key: kstar.ppc.ups.smart.input.frequency
+          history: 30d
+          value_type: FLOAT
+          units: Hz
+          description: 'The current input frequency to the UPS system in 1/10 Hz.'
+          preprocessing:
+            - type: MULTIPLIER
+              parameters:
+                - '0.1'
+          tags:
+            - tag: component
+              value: input
+        - uuid: 01696d8b7b5d44fcbf97a260d3e4d7e7
+          name: 'Kstar PPC: UPS smart input line fail cause'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.3.2.5.0
+          key: kstar.ppc.ups.smart.input.line.fail.cause
+          history: 30d
+          description: 'The reason for the occurrence of the last transfer to UPS battery power. The variable is set to noTransfer(1) if there is no transfer yet. The variable is set to highLineVoltage(2) if the transfer to battery is caused by an over voltage greater than the high transfer voltage. The variable is set to brownout(3) if the duration of the outage is greater than five seconds and the line voltage is between 40 percent of the rated output voltage and the low transfer voltage. The variable is set to blackout(4) if the duration of the outage is greater than five seconds and the line voltage is between 40 percent of the rated output voltage and ground. The variable is set to smallMomentarySag(5) if the duration of the outage is less than five seconds and the line voltage is between 40 percent of the rated output voltage and the low transfer voltage. The variable is set to deepMomentarySag(6) if the duration of the outage is less than five seconds and the line voltage is between 40 percent of the rated output voltage and ground.'
+          valuemap:
+            name: 'Kstar PPC::upsSmartInputLineFailCause'
+          tags:
+            - tag: component
+              value: input
+        - uuid: ef3a2cf5f6d24d10a299680d75ae8800
+          name: 'Kstar PPC: UPS smart input line voltage'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.3.2.1.0
+          key: kstar.ppc.ups.smart.input.line.voltage
+          history: 30d
+          value_type: FLOAT
+          units: V
+          description: 'The current utility line voltage in 1/10 VAC.'
+          preprocessing:
+            - type: MULTIPLIER
+              parameters:
+                - '0.1'
+          tags:
+            - tag: component
+              value: input
+        - uuid: 6ce234bbe6e24918b20cb24dc01f322c
+          name: 'Kstar PPC: UPS smart input max line voltage'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.3.2.2.0
+          key: kstar.ppc.ups.smart.input.max.line.voltage
+          history: 30d
+          value_type: FLOAT
+          units: V
+          description: 'The maximum utility line voltage in 1/10 VAC over the previous 1 minute period.'
+          preprocessing:
+            - type: MULTIPLIER
+              parameters:
+                - '0.1'
+          tags:
+            - tag: component
+              value: input
+        - uuid: 5ad05af660b340ba81d47934072f3ddc
+          name: 'Kstar PPC: UPS smart input min line voltage'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.3.2.3.0
+          key: kstar.ppc.ups.smart.input.min.line.voltage
+          history: 30d
+          value_type: FLOAT
+          units: V
+          description: 'The minimum utility line voltage in 1/10 VAC over the previous 1 minute period.'
+          preprocessing:
+            - type: MULTIPLIER
+              parameters:
+                - '0.1'
+          tags:
+            - tag: component
+              value: input
+        - uuid: 0dc72a912cd8473d817c2b338a1ba025
+          name: 'Kstar PPC: UPS smart output frequency'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.4.2.2.0
+          key: kstar.ppc.ups.smart.output.frequency
+          history: 30d
+          value_type: FLOAT
+          units: Hz
+          description: 'The current output frequency of the UPS system in 1/10 Hz.'
+          preprocessing:
+            - type: MULTIPLIER
+              parameters:
+                - '0.1'
+          tags:
+            - tag: component
+              value: output
+        - uuid: e698d967aad64adbbc62bfd250ed2695
+          name: 'Kstar PPC: UPS smart output load'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.4.2.3.0
+          key: kstar.ppc.ups.smart.output.load
+          history: 30d
+          units: '%'
+          description: 'The current UPS load expressed in percent of rated capacity.'
+          tags:
+            - tag: component
+              value: output
+          triggers:
+            - uuid: b9e0823fa4924e0995aedce02fc5b321
+              expression: 'last(/Kstar UPS PPC by SNMP/kstar.ppc.ups.smart.output.load)>{$UPS.LOAD.MAX.WARN}'
+              name: 'Kstar PPC: Output load is high'
+              opdata: 'Load: {ITEM.LASTVALUE1}'
+              priority: WARNING
+              tags:
+                - tag: scope
+                  value: capacity
+        - uuid: 2aef18b01b744288b1bdde15eafa705a
+          name: 'Kstar PPC: UPS smart output voltage'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.4.2.1.0
+          key: kstar.ppc.ups.smart.output.voltage
+          history: 30d
+          value_type: FLOAT
+          units: V
+          description: 'The output voltage of the UPS system in 1/10 VAC.'
+          preprocessing:
+            - type: MULTIPLIER
+              parameters:
+                - '0.1'
+          tags:
+            - tag: component
+              value: output
+        - uuid: 09f41d279b474e169a6ec7b6b8ac84b0
+          name: 'Kstar PPC: UPS smart test calibration date'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.7.2.8.0
+          key: kstar.ppc.ups.smart.test.calibration.date
+          delay: 1h
+          history: 30d
+          value_type: CHAR
+          description: 'The date the last UPS runtime calibration was performed in mm/dd/yy format.'
+          tags:
+            - tag: component
+              value: test
+        - uuid: eb9814a63554421f9f97bc6035082040
+          name: 'Kstar PPC: UPS smart test calibration results'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.7.2.7.0
+          key: kstar.ppc.ups.smart.test.calibration.results
+          history: 30d
+          description: 'The results of the last runtime calibration. Value ok(1) means a successful runtime calibration. Value invalidTest(2) indicates last calibration did not take place since the battery capacity was below 100 percent. Value calibrationInProgress(3) means a calibration is occurring now.'
+          valuemap:
+            name: 'Kstar PPC::upsSmartTestCalibrationResults'
+          tags:
+            - tag: component
+              value: test
+        - uuid: 98ea0c72ff4f476eb7b7588d8713db69
+          name: 'Kstar PPC: UPS smart test diagnostic schedule'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.7.2.1.0
+          key: kstar.ppc.ups.smart.test.diagnostic.schedule
+          history: 30d
+          description: 'The UPS system''s automatic battery test schedule.'
+          valuemap:
+            name: 'Kstar PPC::upsSmartTestDiagnosticSchedule'
+          tags:
+            - tag: component
+              value: test
+        - uuid: 913f8564ab614f9cb865f46b1ff870c0
+          name: 'Kstar PPC: UPS smart test diagnostics'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.7.2.2.0
+          key: kstar.ppc.ups.smart.test.diagnostics
+          history: 30d
+          description: 'Setting this variable to testDiagnostics(2) causes the UPS to perform a diagnostic self test. Setting this value to noTestDiagnostics(1) has no effect. The value noTestDiagnostics(1) will always be returned when the variable is read.'
+          valuemap:
+            name: 'Kstar PPC::upsSmartTestDiagnostics'
+          tags:
+            - tag: component
+              value: test
+        - uuid: 6b97f3ba0ac948069a96a8105cb41272
+          name: 'Kstar PPC: UPS smart test diagnostics results'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.7.2.3.0
+          key: kstar.ppc.ups.smart.test.diagnostics.results
+          history: 30d
+          description: 'The results of the last UPS diagnostics test performed.'
+          valuemap:
+            name: 'Kstar PPC::upsSmartTestDiagnosticsResults'
+          tags:
+            - tag: component
+              value: test
+        - uuid: 5c057f6bfeaf4ef1b27337e39e9179bb
+          name: 'Kstar PPC: UPS smart test indicators'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.7.2.5.0
+          key: kstar.ppc.ups.smart.test.indicators
+          history: 30d
+          description: 'Setting this variable to testIndicators(2) causes the UPS to perform a front panel indicator (lights) test. Setting this value to noTestIndicators(1) has no effect. The value noTestIndicators(1) will always be returned when the variable is read.'
+          valuemap:
+            name: 'Kstar PPC::upsSmartTestIndicators'
+          tags:
+            - tag: component
+              value: test
+        - uuid: 46356677a4a2412fab1f618fcd29f883
+          name: 'Kstar PPC: UPS smart test last diagnostics date'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.7.2.4.0
+          key: kstar.ppc.ups.smart.test.last.diagnostics.date
+          delay: 1h
+          history: 30d
+          value_type: CHAR
+          description: 'The date the last UPS diagnostics test was performed in mm/dd/yy format.'
+          tags:
+            - tag: component
+              value: test
+        - uuid: 4b9d0d89f45d4578a7c25ef3f9e6494c
+          name: 'Kstar PPC: UPS smart test last diagnostics time'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.7.2.9.0
+          key: kstar.ppc.ups.smart.test.last.diagnostics.time
+          history: 30d
+          status: DISABLED
+          description: |
+            The time for UPS diagnostics test.
+            
+            Disabled in v3 because this optional PPC OID/table is not implemented on some Kstar SNMP cards and appears as unsupported. Enable manually only if snmpwalk confirms this OID exists on your card.
+          tags:
+            - tag: component
+              value: test
+        - uuid: 06886fd4a75349a996dc86ceb54f4d33
+          name: 'Kstar PPC: UPS smart test runtime calibration'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.7.2.6.0
+          key: kstar.ppc.ups.smart.test.runtime.calibration
+          history: 30d
+          description: 'Setting this variable to performCalibration(2) causes the UPS to discharge to calibrate the UPS. The test will only start if the battery capacity is 100 percent. The test runs until capacity is less than 25 percent. Setting this variable to cancelCurrentCalibration(3) after setting performCalibration(2) will cancel the current discharge. Setting this variable to noPerformCalibration(1) will have no effect. The value noPerformCalibration(1) will always be returned when the variable is read. The result of the calibration will be saved in upsSmartTestCalibrationResult.'
+          valuemap:
+            name: 'Kstar PPC::upsSmartTestRuntimeCalibration'
+          tags:
+            - tag: component
+              value: test
+        - uuid: 6a7e1b4cbbba4dd78ac5f18a22112b15
+          name: 'Kstar PPC: UPS three phase battery capacity percentage'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.8.1.2.0
+          key: kstar.ppc.ups.three.phase.battery.capacity.percentage
+          history: 30d
+          units: '%'
+          description: 'Battery Capacity Percentage'
+          tags:
+            - tag: component
+              value: battery
+        - uuid: 9f54bae8c2d14ecda02a9945e967b39d
+          name: 'Kstar PPC: UPS three phase battery current'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.8.1.4.0
+          key: kstar.ppc.ups.three.phase.battery.current
+          history: 30d
+          value_type: FLOAT
+          units: A
+          description: 'Battery Electric Current'
+          preprocessing:
+            - type: MULTIPLIER
+              parameters:
+                - '0.1'
+          tags:
+            - tag: component
+              value: battery
+        - uuid: 2389b5fae20f496d9cf6ec269c4a297b
+          name: 'Kstar PPC: UPS three phase battery temperature'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.8.1.5.0
+          key: kstar.ppc.ups.three.phase.battery.temperature
+          history: 30d
+          value_type: FLOAT
+          units: °C
+          description: 'Battery Temperature'
+          preprocessing:
+            - type: MULTIPLIER
+              parameters:
+                - '0.1'
+          tags:
+            - tag: component
+              value: battery
+          triggers:
+            - uuid: a3a338d200594008bb8c200e25e9061a
+              expression: 'last(/Kstar UPS PPC by SNMP/kstar.ppc.ups.three.phase.battery.temperature)>{$UPS.TEMP.MAX.WARN}'
+              name: 'Kstar PPC: Three-phase battery temperature is high'
+              opdata: 'Three-phase battery temp: {ITEM.LASTVALUE1}'
+              priority: WARNING
+              tags:
+                - tag: scope
+                  value: availability
+        - uuid: fb302cff4b3c4eafbeafd977325d5c60
+          name: 'Kstar PPC: UPS three phase battery time remain'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.8.1.3.0
+          key: kstar.ppc.ups.three.phase.battery.time.remain
+          history: 30d
+          units: s
+          description: 'Battery Time Remain'
+          tags:
+            - tag: component
+              value: battery
+        - uuid: 7447e0a0ec364dff94a2caec339ab6cf
+          name: 'Kstar PPC: UPS three phase battery voltage'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.8.1.1.0
+          key: kstar.ppc.ups.three.phase.battery.voltage
+          history: 30d
+          value_type: FLOAT
+          units: V
+          description: 'Battery Voltage'
+          preprocessing:
+            - type: MULTIPLIER
+              parameters:
+                - '0.1'
+          tags:
+            - tag: component
+              value: battery
+        - uuid: 8b54972887dc488f81877b1e0d611b4e
+          name: 'Kstar PPC: UPS three phase bypass source frequency'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.8.4.1.0
+          key: kstar.ppc.ups.three.phase.bypass.source.frequency
+          history: 30d
+          value_type: FLOAT
+          units: Hz
+          description: 'Bypass Frequency'
+          preprocessing:
+            - type: MULTIPLIER
+              parameters:
+                - '0.1'
+          tags:
+            - tag: component
+              value: bypass
+        - uuid: 0a379498bab746d696aac0775c97a6de
+          name: 'Kstar PPC: UPS three phase bypss source voltage r'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.8.4.2.0
+          key: kstar.ppc.ups.three.phase.bypss.source.voltage.r
+          history: 30d
+          value_type: FLOAT
+          units: V
+          description: 'Bypass Voltage R'
+          preprocessing:
+            - type: MULTIPLIER
+              parameters:
+                - '0.1'
+          tags:
+            - tag: component
+              value: system
+        - uuid: ca817883a7964266b155c9e19f3f4d31
+          name: 'Kstar PPC: UPS three phase bypss source voltage s'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.8.4.3.0
+          key: kstar.ppc.ups.three.phase.bypss.source.voltage.s
+          history: 30d
+          value_type: FLOAT
+          units: V
+          description: 'Bypass Voltage S'
+          preprocessing:
+            - type: MULTIPLIER
+              parameters:
+                - '0.1'
+          tags:
+            - tag: component
+              value: system
+        - uuid: 29eab56348a4406696ebb03896fcd778
+          name: 'Kstar PPC: UPS three phase bypss source voltage t'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.8.4.4.0
+          key: kstar.ppc.ups.three.phase.bypss.source.voltage.t
+          history: 30d
+          value_type: FLOAT
+          units: V
+          description: 'Bypass Voltage T'
+          preprocessing:
+            - type: MULTIPLIER
+              parameters:
+                - '0.1'
+          tags:
+            - tag: component
+              value: system
+        - uuid: 357e7787e17640c284dbb26a4e704aa1
+          name: 'Kstar PPC: UPS three phase d cand rectifier status battery status'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.8.5.5.0
+          key: kstar.ppc.ups.three.phase.d.cand.rectifier.status.battery.status
+          history: 30d
+          description: 'Back Status'
+          valuemap:
+            name: 'Kstar PPC::upsThreePhaseDCandRectifierStatusBatteryStatus'
+          tags:
+            - tag: component
+              value: battery
+          triggers:
+            - uuid: 00bb86884d5a4221bf63ab1a041039b3
+              expression: 'last(/Kstar UPS PPC by SNMP/kstar.ppc.ups.three.phase.d.cand.rectifier.status.battery.status)=3'
+              name: 'Kstar PPC: Battery status is not normal'
+              opdata: 'Current status: {ITEM.LASTVALUE1}'
+              priority: HIGH
+              description: 'UPS battery status is batteryLow(3).'
+              tags:
+                - tag: scope
+                  value: availability
+        - uuid: ee694798d4de4b07899d8e086076bc31
+          name: 'Kstar PPC: UPS three phase d cand rectifier status charge status'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.8.5.6.0
+          key: kstar.ppc.ups.three.phase.d.cand.rectifier.status.charge.status
+          history: 30d
+          description: 'Charge Status'
+          valuemap:
+            name: 'Kstar PPC::upsThreePhaseDCandRectifierStatusChargeStatus'
+          tags:
+            - tag: component
+              value: system
+        - uuid: 05af80a0c7ce46b68ab67f4b8ee1c648
+          name: 'Kstar PPC: UPS three phase d cand rectifier status in and out'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.8.5.4.0
+          key: kstar.ppc.ups.three.phase.d.cand.rectifier.status.in.and.out
+          history: 30d
+          description: 'In And Put'
+          valuemap:
+            name: 'Kstar PPC::upsThreePhaseDCandRectifierStatusInAndOut'
+          tags:
+            - tag: component
+              value: system
+        - uuid: fb175de7b2e3400faf409f6746604ce7
+          name: 'Kstar PPC: UPS three phase d cand rectifier status low battery'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.8.5.3.0
+          key: kstar.ppc.ups.three.phase.d.cand.rectifier.status.low.battery
+          history: 30d
+          description: 'Low Battery'
+          valuemap:
+            name: 'Kstar PPC::upsThreePhaseDCandRectifierStatusLowBattery'
+          tags:
+            - tag: component
+              value: battery
+        - uuid: 672bfcf7a62b4b95af8f2e74910c2d73
+          name: 'Kstar PPC: UPS three phase d cand rectifier status low battery shutdown'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.8.5.2.0
+          key: kstar.ppc.ups.three.phase.d.cand.rectifier.status.low.battery.shutdown
+          history: 30d
+          description: 'Low Battery Shutdown'
+          valuemap:
+            name: 'Kstar PPC::upsThreePhaseDCandRectifierStatusLowBatteryShutdown'
+          tags:
+            - tag: component
+              value: battery
+        - uuid: 18a1598c575d4746bf43695f2cc12bc4
+          name: 'Kstar PPC: UPS three phase d cand rectifier status rec operating'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.8.5.7.0
+          key: kstar.ppc.ups.three.phase.d.cand.rectifier.status.rec.operating
+          history: 30d
+          description: 'Rectifier Operating'
+          valuemap:
+            name: 'Kstar PPC::upsThreePhaseDCandRectifierStatusRecOperating'
+          tags:
+            - tag: component
+              value: system
+        - uuid: 55bf37370ce24f9bac8a9bdeccc6bfff
+          name: 'Kstar PPC: UPS three phase d cand rectifier status rec rot error'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.8.5.1.0
+          key: kstar.ppc.ups.three.phase.d.cand.rectifier.status.rec.rot.error
+          history: 30d
+          description: 'Rectifier Rotation Error'
+          valuemap:
+            name: 'Kstar PPC::upsThreePhaseDCandRectifierStatusRecRotError'
+          tags:
+            - tag: component
+              value: system
+        - uuid: 35cafb1c0a7145099bffa0623b0c8ba3
+          name: 'Kstar PPC: UPS three phase fault status bypass breaker'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.8.7.3.0
+          key: kstar.ppc.ups.three.phase.fault.status.bypass.breaker
+          history: 30d
+          description: 'Bypass Breaker'
+          valuemap:
+            name: 'Kstar PPC::upsThreePhaseFaultStatusBypassBreaker'
+          tags:
+            - tag: component
+              value: bypass
+        - uuid: d7c6ce7e424d42b89000f0891e532b45
+          name: 'Kstar PPC: UPS three phase fault status emergency stop'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.8.7.1.0
+          key: kstar.ppc.ups.three.phase.fault.status.emergency.stop
+          history: 30d
+          description: 'Emergency Stop'
+          valuemap:
+            name: 'Kstar PPC::upsThreePhaseFaultStatusEmergencyStop'
+          tags:
+            - tag: component
+              value: system
+        - uuid: d5efb008625f41c3b4478465a3923f52
+          name: 'Kstar PPC: UPS three phase fault status high dc shutdown'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.8.7.2.0
+          key: kstar.ppc.ups.three.phase.fault.status.high.dc.shutdown
+          history: 30d
+          description: 'High DC Shutdown'
+          valuemap:
+            name: 'Kstar PPC::upsThreePhaseFaultStatusHighDCShutdown'
+          tags:
+            - tag: component
+              value: system
+        - uuid: ebd812cd10e84d3d9cb98f33dd7dc552
+          name: 'Kstar PPC: UPS three phase fault status inverter output fail'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.8.7.5.0
+          key: kstar.ppc.ups.three.phase.fault.status.inverter.output.fail
+          history: 30d
+          description: 'Output Fail'
+          valuemap:
+            name: 'Kstar PPC::upsThreePhaseFaultStatusInverterOutputFail'
+          tags:
+            - tag: component
+              value: output
+        - uuid: a7ff0edda23c4ee69bf40ad202f72d1d
+          name: 'Kstar PPC: UPS three phase fault status over load'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.8.7.4.0
+          key: kstar.ppc.ups.three.phase.fault.status.over.load
+          history: 30d
+          description: 'Over Load'
+          valuemap:
+            name: 'Kstar PPC::upsThreePhaseFaultStatusOverLoad'
+          tags:
+            - tag: component
+              value: system
+        - uuid: ae9d62e554b7468fbeead3f70e0b8b7a
+          name: 'Kstar PPC: UPS three phase fault status over temperature'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.8.7.6.0
+          key: kstar.ppc.ups.three.phase.fault.status.over.temperature
+          history: 30d
+          description: 'Over Temperature'
+          valuemap:
+            name: 'Kstar PPC::upsThreePhaseFaultStatusOverTemperature'
+          tags:
+            - tag: component
+              value: system
+        - uuid: ca39d8904b454e9289435c5839f56fb5
+          name: 'Kstar PPC: UPS three phase fault status short circuit'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.8.7.7.0
+          key: kstar.ppc.ups.three.phase.fault.status.short.circuit
+          history: 30d
+          description: 'Short Circuit'
+          valuemap:
+            name: 'Kstar PPC::upsThreePhaseFaultStatusShortCircuit'
+          tags:
+            - tag: component
+              value: system
+        - uuid: ecac09fd832e428cb02ae2eaacb44adc
+          name: 'Kstar PPC: UPS three phase input frequency'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.8.2.1.0
+          key: kstar.ppc.ups.three.phase.input.frequency
+          history: 30d
+          value_type: FLOAT
+          units: Hz
+          description: 'Input Frequency'
+          preprocessing:
+            - type: MULTIPLIER
+              parameters:
+                - '0.1'
+          tags:
+            - tag: component
+              value: input
+        - uuid: 30510bb73eb9483db63f11c234875bf1
+          name: 'Kstar PPC: UPS three phase input voltage r'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.8.2.2.0
+          key: kstar.ppc.ups.three.phase.input.voltage.r
+          history: 30d
+          value_type: FLOAT
+          units: V
+          description: 'Input Voltage R'
+          preprocessing:
+            - type: MULTIPLIER
+              parameters:
+                - '0.1'
+          tags:
+            - tag: component
+              value: input
+        - uuid: dbabc1bf98a7442ca706e107d92d87ac
+          name: 'Kstar PPC: UPS three phase input voltage s'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.8.2.3.0
+          key: kstar.ppc.ups.three.phase.input.voltage.s
+          history: 30d
+          value_type: FLOAT
+          units: V
+          description: 'Input Voltage S'
+          preprocessing:
+            - type: MULTIPLIER
+              parameters:
+                - '0.1'
+          tags:
+            - tag: component
+              value: input
+        - uuid: 2216e0ee3e7a45c391d78eef515c0b1a
+          name: 'Kstar PPC: UPS three phase input voltage t'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.8.2.4.0
+          key: kstar.ppc.ups.three.phase.input.voltage.t
+          history: 30d
+          value_type: FLOAT
+          units: V
+          description: 'Input Voltage T'
+          preprocessing:
+            - type: MULTIPLIER
+              parameters:
+                - '0.1'
+          tags:
+            - tag: component
+              value: input
+        - uuid: 5dad7f3010ff46709e1d348a0c8eb35b
+          name: 'Kstar PPC: UPS three phase output frequency'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.8.3.1.0
+          key: kstar.ppc.ups.three.phase.output.frequency
+          history: 30d
+          value_type: FLOAT
+          units: Hz
+          description: 'Output Frequency'
+          preprocessing:
+            - type: MULTIPLIER
+              parameters:
+                - '0.1'
+          tags:
+            - tag: component
+              value: output
+        - uuid: 6a96b44a60014bf3a00e0eb0e6351ae5
+          name: 'Kstar PPC: UPS three phase output load percentage r'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.8.3.5.0
+          key: kstar.ppc.ups.three.phase.output.load.percentage.r
+          history: 30d
+          units: '%'
+          description: 'Load Percentage R'
+          tags:
+            - tag: component
+              value: output
+        - uuid: 3ef1761a85e8481e8a11967bb999ab2b
+          name: 'Kstar PPC: UPS three phase output load percentage s'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.8.3.6.0
+          key: kstar.ppc.ups.three.phase.output.load.percentage.s
+          history: 30d
+          units: '%'
+          description: 'Load Percentage S'
+          tags:
+            - tag: component
+              value: output
+        - uuid: 4a00a784e05844f99ee5529198484eca
+          name: 'Kstar PPC: UPS three phase output load percentage t'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.8.3.7.0
+          key: kstar.ppc.ups.three.phase.output.load.percentage.t
+          history: 30d
+          units: '%'
+          description: 'Load Percentage T'
+          tags:
+            - tag: component
+              value: output
+        - uuid: 9909ac6c4ef04100b4824d7ffc87a7be
+          name: 'Kstar PPC: UPS three phase output voltage r'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.8.3.2.0
+          key: kstar.ppc.ups.three.phase.output.voltage.r
+          history: 30d
+          value_type: FLOAT
+          units: V
+          description: 'Output Voltage R'
+          preprocessing:
+            - type: MULTIPLIER
+              parameters:
+                - '0.1'
+          tags:
+            - tag: component
+              value: output
+        - uuid: e245050d183f48bf93bc682b51705bfb
+          name: 'Kstar PPC: UPS three phase output voltage s'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.8.3.3.0
+          key: kstar.ppc.ups.three.phase.output.voltage.s
+          history: 30d
+          value_type: FLOAT
+          units: V
+          description: 'Output Voltage S'
+          preprocessing:
+            - type: MULTIPLIER
+              parameters:
+                - '0.1'
+          tags:
+            - tag: component
+              value: output
+        - uuid: d739069eb23a481ca56b25764dc3c6a7
+          name: 'Kstar PPC: UPS three phase output voltage t'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.8.3.4.0
+          key: kstar.ppc.ups.three.phase.output.voltage.t
+          history: 30d
+          value_type: FLOAT
+          units: V
+          description: 'Output Voltage T'
+          preprocessing:
+            - type: MULTIPLIER
+              parameters:
+                - '0.1'
+          tags:
+            - tag: component
+              value: output
+        - uuid: 1ec97530df814f0cb9d6db5adc070ff7
+          name: 'Kstar PPC: UPS three phase rating battery voltage'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.8.8.7.0
+          key: kstar.ppc.ups.three.phase.rating.battery.voltage
+          history: 30d
+          description: 'Battery Voltage'
+          tags:
+            - tag: component
+              value: battery
+        - uuid: 9e5b9586e05d4cac80a46cbf3751456d
+          name: 'Kstar PPC: UPS three phase rating bypass frequency'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.8.8.4.0
+          key: kstar.ppc.ups.three.phase.rating.bypass.frequency
+          history: 30d
+          description: 'Bypass Frequency'
+          tags:
+            - tag: component
+              value: bypass
+        - uuid: c18349e1550742eb9b253cee37eed8c9
+          name: 'Kstar PPC: UPS three phase rating bypass voltage'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.8.8.3.0
+          key: kstar.ppc.ups.three.phase.rating.bypass.voltage
+          delay: 1h
+          history: 30d
+          value_type: CHAR
+          description: 'Bypass Voltage'
+          tags:
+            - tag: component
+              value: bypass
+        - uuid: 5c48738996fb42da8fc5544d10b156e9
+          name: 'Kstar PPC: UPS three phase rating output frequency'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.8.8.6.0
+          key: kstar.ppc.ups.three.phase.rating.output.frequency
+          history: 30d
+          description: 'Output Frequency'
+          tags:
+            - tag: component
+              value: output
+        - uuid: 98d27659227c4281a464cc7b15bf3607
+          name: 'Kstar PPC: UPS three phase rating output voltage'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.8.8.5.0
+          key: kstar.ppc.ups.three.phase.rating.output.voltage
+          delay: 1h
+          history: 30d
+          value_type: CHAR
+          description: 'Output Voltage'
+          tags:
+            - tag: component
+              value: output
+        - uuid: 09d273e026f541ecae946347446b6037
+          name: 'Kstar PPC: UPS three phase rating power'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.8.8.8.0
+          key: kstar.ppc.ups.three.phase.rating.power
+          delay: 1h
+          history: 30d
+          value_type: CHAR
+          description: 'Power Rating'
+          tags:
+            - tag: component
+              value: system
+        - uuid: 89e90bf3f12440d0aa020808bfd99b30
+          name: 'Kstar PPC: UPS three phase rating rectifier frequency'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.8.8.2.0
+          key: kstar.ppc.ups.three.phase.rating.rectifier.frequency
+          history: 30d
+          description: 'Rectifier Frequency'
+          tags:
+            - tag: component
+              value: system
+        - uuid: 92e4c6a875e14d649e67f6f7948fa5bd
+          name: 'Kstar PPC: UPS three phase rating rectifier voltage'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.8.8.1.0
+          key: kstar.ppc.ups.three.phase.rating.rectifier.voltage
+          delay: 1h
+          history: 30d
+          value_type: CHAR
+          description: 'Rectifier Voltage'
+          tags:
+            - tag: component
+              value: system
+        - uuid: 360de67ccec74793aba12266e179389b
+          name: 'Kstar PPC: UPS three phase UPS static switch mode'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.8.6.4.0
+          key: kstar.ppc.ups.three.phase.ups.static.switch.mode
+          history: 30d
+          description: 'Switch Mode.'
+          valuemap:
+            name: 'Kstar PPC::upsThreePhaseUPSStaticSwitchMode'
+          tags:
+            - tag: component
+              value: system
+        - uuid: a538cada7a8542b29e3e4bf6552e9097
+          name: 'Kstar PPC: UPS three phase UPS status ac status'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.8.6.3.0
+          key: kstar.ppc.ups.three.phase.ups.status.ac.status
+          history: 30d
+          description: 'AC Status'
+          valuemap:
+            name: 'Kstar PPC::upsThreePhaseUPSStatusACStatus'
+          tags:
+            - tag: component
+              value: system
+        - uuid: b8d81a1d2d474234bf0928c3a7305e43
+          name: 'Kstar PPC: UPS three phase UPS status bypass freq fail'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.8.6.1.0
+          key: kstar.ppc.ups.three.phase.ups.status.bypass.freq.fail
+          history: 30d
+          description: 'Bypass Status'
+          valuemap:
+            name: 'Kstar PPC::upsThreePhaseUPSStatusBypassFreqFail'
+          tags:
+            - tag: component
+              value: bypass
+        - uuid: 404786ec809742c694d80e741d24db7a
+          name: 'Kstar PPC: UPS three phase UPS status inverter operating'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.8.6.5.0
+          key: kstar.ppc.ups.three.phase.ups.status.inverter.operating
+          history: 30d
+          description: 'Inverter working status. The yes(14) for inverter working. The no(16) for inverter not working.'
+          valuemap:
+            name: 'Kstar PPC::upsThreePhaseUPSStatusInverterOperating'
+          tags:
+            - tag: component
+              value: system
+        - uuid: 09db478d2ee34f3c837c932b173cbb03
+          name: 'Kstar PPC: UPS three phase UPS status manual bypass breaker'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.935.1.1.1.8.6.2.0
+          key: kstar.ppc.ups.three.phase.ups.status.manual.bypass.breaker
+          history: 30d
+          description: 'Breaker Status'
+          valuemap:
+            name: 'Kstar PPC::upsThreePhaseUPSStatusManualBypassBreaker'
+          tags:
+            - tag: component
+              value: bypass
+        - uuid: 6d184023ec6a402cb49a94fab0f03255
+          name: 'Kstar PPC: SNMP traps'
+          type: SNMP_TRAP
+          key: 'snmptrap["(XPPC-MIB|KSTAR|kstar|ppc|1\.3\.6\.1\.4\.1\.935)"]'
+          history: 30d
+          value_type: LOG
+          description: 'Collects matching UPS SNMP traps. Requires Zabbix SNMP trap receiving to be configured on the server or proxy.'
+          tags:
+            - tag: component
+              value: trap
+        - uuid: ac8c4843855644dcacc34c84734c9369
+          name: 'Kstar PPC: SNMP availability'
+          type: INTERNAL
+          key: 'zabbix[host,snmp,available]'
+          history: 7d
+          valuemap:
+            name: 'Zabbix interface availability'
+          tags:
+            - tag: component
+              value: system
+          triggers:
+            - uuid: 044dfe16401b40c5a51c4ba065a6c645
+              expression: 'max(/Kstar UPS PPC by SNMP/zabbix[host,snmp,available],5m)=0'
+              name: 'Kstar PPC: SNMP is unavailable'
+              opdata: 'Current SNMP availability: {ITEM.LASTVALUE1}'
+              priority: AVERAGE
+              description: 'No SNMP data has been received from the host interface for 5 minutes.'
+              tags:
+                - tag: scope
+                  value: availability
+      discovery_rules:
+        - uuid: 9c3fe43b83da41dfb65aa5b246ca5dfe
+          name: 'Kstar PPC: mconfig traps receivers entry discovery'
+          type: DEPENDENT
+          key: kstar.ppc.mconfig.traps.receivers.entry.discovery
+          status: DISABLED
+          lifetime: 30d
+          description: |
+            Discovery of mconfigTrapsReceiversEntry rows from 1.3.6.1.4.1.935.2.1.2.1.
+            
+            Disabled in v3 because its master walk item is optional and was unsupported on the tested PPC card. Enable together with the matching raw walk item only after snmpwalk confirms the table exists.
+          item_prototypes:
+            - uuid: 66929cf105524845ba559f83ba8e7348
+              name: 'Kstar PPC: receiver accept {#SNMPINDEX}'
+              type: DEPENDENT
+              key: 'kstar.ppc.receiver.accept[{#SNMPINDEX}]'
+              history: 30d
+              description: 'An entry will become active if yes, and will be deleted if no.'
+              valuemap:
+                name: 'Kstar PPC::receiverAccept'
+              preprocessing:
+                - type: SNMP_WALK_VALUE
+                  parameters:
+                    - '1.3.6.1.4.1.935.2.1.2.1.5.{#SNMPINDEX}'
+                    - '0'
+              master_item:
+                key: kstar.ppc.mconfig.traps.receivers.entry.walk
+              tags:
+                - tag: component
+                  value: system
+            - uuid: 74218f980f6d46ce8def09ce077634d7
+              name: 'Kstar PPC: severity level {#SNMPINDEX}'
+              type: DEPENDENT
+              key: 'kstar.ppc.severity.level[{#SNMPINDEX}]'
+              history: 30d
+              description: 'The severity threshold of traps to send to the manager. traps are labeled in severity as informational(1), warning(2), severe(3). Only traps of equal or greater severity than this value are sent to the manager.'
+              valuemap:
+                name: 'Kstar PPC::severityLevel'
+              preprocessing:
+                - type: SNMP_WALK_VALUE
+                  parameters:
+                    - '1.3.6.1.4.1.935.2.1.2.1.4.{#SNMPINDEX}'
+                    - '0'
+              master_item:
+                key: kstar.ppc.mconfig.traps.receivers.entry.walk
+              tags:
+                - tag: component
+                  value: system
+            - uuid: df46158eca9b45389b80a55f008803bd
+              name: 'Kstar PPC: traps index {#SNMPINDEX}'
+              type: DEPENDENT
+              key: 'kstar.ppc.traps.index[{#SNMPINDEX}]'
+              history: 30d
+              description: 'The index to a trap receiver entry.'
+              preprocessing:
+                - type: SNMP_WALK_VALUE
+                  parameters:
+                    - '1.3.6.1.4.1.935.2.1.2.1.1.{#SNMPINDEX}'
+                    - '0'
+              master_item:
+                key: kstar.ppc.mconfig.traps.receivers.entry.walk
+              tags:
+                - tag: component
+                  value: trap
+            - uuid: 5a1d9ddd58d64bd6bb148f6e772658c7
+              name: 'Kstar PPC: traps receiver addr {#SNMPINDEX}'
+              type: DEPENDENT
+              key: 'kstar.ppc.traps.receiver.addr[{#SNMPINDEX}]'
+              history: 30d
+              value_type: CHAR
+              description: 'The IP address of the manager to send a trap to.'
+              preprocessing:
+                - type: SNMP_WALK_VALUE
+                  parameters:
+                    - '1.3.6.1.4.1.935.2.1.2.1.2.{#SNMPINDEX}'
+                    - '0'
+              master_item:
+                key: kstar.ppc.mconfig.traps.receivers.entry.walk
+              tags:
+                - tag: component
+                  value: trap
+          master_item:
+            key: kstar.ppc.mconfig.traps.receivers.entry.walk
+          preprocessing:
+            - type: SNMP_WALK_TO_JSON
+              parameters:
+                - '{#TRAPS_INDEX}'
+                - 1.3.6.1.4.1.935.2.1.2.1.1
+                - '0'
+        - uuid: 86043daa399c4d01bfbf99041febfaba
+          name: 'Kstar PPC: UPS base config device entry discovery'
+          type: DEPENDENT
+          key: kstar.ppc.ups.base.config.device.entry.discovery
+          status: DISABLED
+          lifetime: 30d
+          description: |
+            Discovery of upsBaseConfigDeviceEntry rows from 1.3.6.1.4.1.935.1.1.1.5.1.2.1.
+            
+            Disabled in v3 because its master walk item is optional and was unsupported on the tested PPC card. Enable together with the matching raw walk item only after snmpwalk confirms the table exists.
+          item_prototypes:
+            - uuid: 8ba1a35710b447608c11076cc14852bb
+              name: 'Kstar PPC: device accept {#SNMPINDEX}'
+              type: DEPENDENT
+              key: 'kstar.ppc.device.accept[{#SNMPINDEX}]'
+              history: 30d
+              description: 'An entry is added if yes, the entry is deleted if no.'
+              valuemap:
+                name: 'Kstar PPC::deviceAccept'
+              preprocessing:
+                - type: SNMP_WALK_VALUE
+                  parameters:
+                    - '1.3.6.1.4.1.935.1.1.1.5.1.2.1.4.{#SNMPINDEX}'
+                    - '0'
+              master_item:
+                key: kstar.ppc.ups.base.config.device.entry.walk
+              tags:
+                - tag: component
+                  value: system
+            - uuid: 8a8844524d6944c48c4c902f2060f4a9
+              name: 'Kstar PPC: index of device {#SNMPINDEX}'
+              type: DEPENDENT
+              key: 'kstar.ppc.index.of.device[{#SNMPINDEX}]'
+              history: 30d
+              description: 'The index of the device that is plugged into the UPS.'
+              preprocessing:
+                - type: SNMP_WALK_VALUE
+                  parameters:
+                    - '1.3.6.1.4.1.935.1.1.1.5.1.2.1.1.{#SNMPINDEX}'
+                    - '0'
+              master_item:
+                key: kstar.ppc.ups.base.config.device.entry.walk
+              tags:
+                - tag: component
+                  value: system
+            - uuid: 38f0ba25e97a49e09ee8be2db1912f14
+              name: 'Kstar PPC: name of device {#SNMPINDEX}'
+              type: DEPENDENT
+              key: 'kstar.ppc.name.of.device[{#SNMPINDEX}]'
+              history: 30d
+              value_type: CHAR
+              description: 'The name/description of the device plugged into the UPS.'
+              preprocessing:
+                - type: SNMP_WALK_VALUE
+                  parameters:
+                    - '1.3.6.1.4.1.935.1.1.1.5.1.2.1.2.{#SNMPINDEX}'
+                    - '0'
+              master_item:
+                key: kstar.ppc.ups.base.config.device.entry.walk
+              tags:
+                - tag: component
+                  value: system
+            - uuid: 8cf2f186f8104e88a1ccffe5c87b266f
+              name: 'Kstar PPC: va rating of device {#SNMPINDEX}'
+              type: DEPENDENT
+              key: 'kstar.ppc.va.rating.of.device[{#SNMPINDEX}]'
+              history: 30d
+              description: 'The volt-amp rating of the device plugged into the UPS.'
+              preprocessing:
+                - type: SNMP_WALK_VALUE
+                  parameters:
+                    - '1.3.6.1.4.1.935.1.1.1.5.1.2.1.3.{#SNMPINDEX}'
+                    - '0'
+              master_item:
+                key: kstar.ppc.ups.base.config.device.entry.walk
+              tags:
+                - tag: component
+                  value: system
+          master_item:
+            key: kstar.ppc.ups.base.config.device.entry.walk
+          preprocessing:
+            - type: SNMP_WALK_TO_JSON
+              parameters:
+                - '{#INDEX_OF_DEVICE}'
+                - 1.3.6.1.4.1.935.1.1.1.5.1.2.1.1
+                - '0'
+        - uuid: 7cbf5ad570194ee0b6e915119ecd2cdb
+          name: 'Kstar PPC: UPS discharger settings timing entry discovery'
+          type: DEPENDENT
+          key: kstar.ppc.ups.discharger.settings.timing.entry.discovery
+          status: DISABLED
+          lifetime: 30d
+          description: |
+            Discovery of upsDischargerSettingsTimingEntry rows from 1.3.6.1.4.1.935.1.1.1.10.2.8.1.
+            
+            Disabled in v3 because its master walk item is optional and was unsupported on the tested PPC card. Enable together with the matching raw walk item only after snmpwalk confirms the table exists.
+          item_prototypes:
+            - uuid: b6ddf57a01b24376985be3b64715c4e5
+              name: 'Kstar PPC: UPS discharger settings timing date {#SNMPINDEX}'
+              type: DEPENDENT
+              key: 'kstar.ppc.ups.discharger.settings.timing.date[{#SNMPINDEX}]'
+              history: 30d
+              value_type: CHAR
+              description: 'The start date & time in format ''yyyy-MM-dd'' of UPS timing discharge.'
+              preprocessing:
+                - type: SNMP_WALK_VALUE
+                  parameters:
+                    - '1.3.6.1.4.1.935.1.1.1.10.2.8.1.2.{#SNMPINDEX}'
+                    - '0'
+              master_item:
+                key: kstar.ppc.ups.discharger.settings.timing.entry.walk
+              tags:
+                - tag: component
+                  value: discharger
+            - uuid: c53c2344904c46ceb765fcd2cba3cfb7
+              name: 'Kstar PPC: UPS discharger settings timing end time {#SNMPINDEX}'
+              type: DEPENDENT
+              key: 'kstar.ppc.ups.discharger.settings.timing.end.time[{#SNMPINDEX}]'
+              history: 30d
+              value_type: CHAR
+              description: 'The end time in format ''hh:mm'' of UPS timing discharge.'
+              preprocessing:
+                - type: SNMP_WALK_VALUE
+                  parameters:
+                    - '1.3.6.1.4.1.935.1.1.1.10.2.8.1.4.{#SNMPINDEX}'
+                    - '0'
+              master_item:
+                key: kstar.ppc.ups.discharger.settings.timing.entry.walk
+              tags:
+                - tag: component
+                  value: discharger
+            - uuid: e046e02c089e4ff7994332b93e7775e2
+              name: 'Kstar PPC: UPS discharger settings timing index {#SNMPINDEX}'
+              type: DEPENDENT
+              key: 'kstar.ppc.ups.discharger.settings.timing.index[{#SNMPINDEX}]'
+              history: 30d
+              description: 'The index of UPS timing discharge.'
+              preprocessing:
+                - type: SNMP_WALK_VALUE
+                  parameters:
+                    - '1.3.6.1.4.1.935.1.1.1.10.2.8.1.1.{#SNMPINDEX}'
+                    - '0'
+              master_item:
+                key: kstar.ppc.ups.discharger.settings.timing.entry.walk
+              tags:
+                - tag: component
+                  value: discharger
+            - uuid: 78ef8a803eff4586b8a96757c07e3281
+              name: 'Kstar PPC: UPS discharger settings timing start time {#SNMPINDEX}'
+              type: DEPENDENT
+              key: 'kstar.ppc.ups.discharger.settings.timing.start.time[{#SNMPINDEX}]'
+              history: 30d
+              value_type: CHAR
+              description: 'The start time in format ''hh:mm'' of UPS timing discharge.'
+              preprocessing:
+                - type: SNMP_WALK_VALUE
+                  parameters:
+                    - '1.3.6.1.4.1.935.1.1.1.10.2.8.1.3.{#SNMPINDEX}'
+                    - '0'
+              master_item:
+                key: kstar.ppc.ups.discharger.settings.timing.entry.walk
+              tags:
+                - tag: component
+                  value: discharger
+          master_item:
+            key: kstar.ppc.ups.discharger.settings.timing.entry.walk
+          preprocessing:
+            - type: SNMP_WALK_TO_JSON
+              parameters:
+                - '{#UPS_DISCHARGER_SETTINGS_TIMING_INDEX}'
+                - 1.3.6.1.4.1.935.1.1.1.10.2.8.1.1
+                - '0'
+        - uuid: d4e52f74b79344798d7d44737b9c9e05
+          name: 'Kstar PPC: UPS env entry discovery'
+          type: DEPENDENT
+          key: kstar.ppc.ups.env.entry.discovery
+          lifetime: 30d
+          description: 'Discovery of upsEnvEntry rows from 1.3.6.1.4.1.935.1.1.1.9.1.2.1.'
+          item_prototypes:
+            - uuid: 14ce648e53ef4406a2dd2b808c8acfdb
+              name: 'Kstar PPC: UPS env humidity {#SNMPINDEX}'
+              type: DEPENDENT
+              key: 'kstar.ppc.ups.env.humidity[{#SNMPINDEX}]'
+              history: 30d
+              value_type: FLOAT
+              units: '%'
+              description: 'The environment humidity.'
+              preprocessing:
+                - type: SNMP_WALK_VALUE
+                  parameters:
+                    - '1.3.6.1.4.1.935.1.1.1.9.1.2.1.3.{#SNMPINDEX}'
+                    - '0'
+                - type: MULTIPLIER
+                  parameters:
+                    - '0.1'
+              master_item:
+                key: kstar.ppc.ups.env.entry.walk
+              tags:
+                - tag: component
+                  value: environment
+            - uuid: 81f9110f9bde4e7e9374501e7fc44010
+              name: 'Kstar PPC: UPS env index {#SNMPINDEX}'
+              type: DEPENDENT
+              key: 'kstar.ppc.ups.env.index[{#SNMPINDEX}]'
+              history: 30d
+              description: 'The index to a environment sensor data.'
+              preprocessing:
+                - type: SNMP_WALK_VALUE
+                  parameters:
+                    - '1.3.6.1.4.1.935.1.1.1.9.1.2.1.1.{#SNMPINDEX}'
+                    - '0'
+              master_item:
+                key: kstar.ppc.ups.env.entry.walk
+              tags:
+                - tag: component
+                  value: environment
+            - uuid: 8e359b98f7554ece944bccf9d6e2933c
+              name: 'Kstar PPC: UPS env security1 {#SNMPINDEX}'
+              type: DEPENDENT
+              key: 'kstar.ppc.ups.env.security1[{#SNMPINDEX}]'
+              history: 30d
+              description: 'Security status'
+              valuemap:
+                name: 'Kstar PPC::upsEnvSecurity1'
+              preprocessing:
+                - type: SNMP_WALK_VALUE
+                  parameters:
+                    - '1.3.6.1.4.1.935.1.1.1.9.1.2.1.6.{#SNMPINDEX}'
+                    - '0'
+              master_item:
+                key: kstar.ppc.ups.env.entry.walk
+              tags:
+                - tag: component
+                  value: environment
+              trigger_prototypes:
+                - uuid: 31b7d5549a8e4bb2bdcc7d8d4db8b268
+                  expression: 'last(/Kstar UPS PPC by SNMP/kstar.ppc.ups.env.security1[{#SNMPINDEX}])=2'
+                  name: 'Kstar PPC: Environment security1 {#SNMPINDEX} abnormal'
+                  opdata: 'Status: {ITEM.LASTVALUE1}'
+                  priority: WARNING
+                  tags:
+                    - tag: scope
+                      value: availability
+            - uuid: 44d3aa4252794074af918bbebd608de3
+              name: 'Kstar PPC: UPS env security2 {#SNMPINDEX}'
+              type: DEPENDENT
+              key: 'kstar.ppc.ups.env.security2[{#SNMPINDEX}]'
+              history: 30d
+              description: 'Security status'
+              valuemap:
+                name: 'Kstar PPC::upsEnvSecurity2'
+              preprocessing:
+                - type: SNMP_WALK_VALUE
+                  parameters:
+                    - '1.3.6.1.4.1.935.1.1.1.9.1.2.1.7.{#SNMPINDEX}'
+                    - '0'
+              master_item:
+                key: kstar.ppc.ups.env.entry.walk
+              tags:
+                - tag: component
+                  value: environment
+              trigger_prototypes:
+                - uuid: acb767e0faf74d768fd1c9502a660e61
+                  expression: 'last(/Kstar UPS PPC by SNMP/kstar.ppc.ups.env.security2[{#SNMPINDEX}])=2'
+                  name: 'Kstar PPC: Environment security2 {#SNMPINDEX} abnormal'
+                  opdata: 'Status: {ITEM.LASTVALUE1}'
+                  priority: WARNING
+                  tags:
+                    - tag: scope
+                      value: availability
+            - uuid: 9f35974c1aa44bc7b348768a5959dce1
+              name: 'Kstar PPC: UPS env security3 {#SNMPINDEX}'
+              type: DEPENDENT
+              key: 'kstar.ppc.ups.env.security3[{#SNMPINDEX}]'
+              history: 30d
+              description: 'Security status'
+              valuemap:
+                name: 'Kstar PPC::upsEnvSecurity3'
+              preprocessing:
+                - type: SNMP_WALK_VALUE
+                  parameters:
+                    - '1.3.6.1.4.1.935.1.1.1.9.1.2.1.8.{#SNMPINDEX}'
+                    - '0'
+              master_item:
+                key: kstar.ppc.ups.env.entry.walk
+              tags:
+                - tag: component
+                  value: environment
+              trigger_prototypes:
+                - uuid: 33c4f56a93bd4db1b24187e9e1dd2cc8
+                  expression: 'last(/Kstar UPS PPC by SNMP/kstar.ppc.ups.env.security3[{#SNMPINDEX}])=2'
+                  name: 'Kstar PPC: Environment security3 {#SNMPINDEX} abnormal'
+                  opdata: 'Status: {ITEM.LASTVALUE1}'
+                  priority: WARNING
+                  tags:
+                    - tag: scope
+                      value: availability
+            - uuid: a3db7b2d0b4a433faa41bca02b110ac2
+              name: 'Kstar PPC: UPS env security4 {#SNMPINDEX}'
+              type: DEPENDENT
+              key: 'kstar.ppc.ups.env.security4[{#SNMPINDEX}]'
+              history: 30d
+              description: 'Security status'
+              valuemap:
+                name: 'Kstar PPC::upsEnvSecurity4'
+              preprocessing:
+                - type: SNMP_WALK_VALUE
+                  parameters:
+                    - '1.3.6.1.4.1.935.1.1.1.9.1.2.1.9.{#SNMPINDEX}'
+                    - '0'
+              master_item:
+                key: kstar.ppc.ups.env.entry.walk
+              tags:
+                - tag: component
+                  value: environment
+              trigger_prototypes:
+                - uuid: 23e06d8df07945808ec6ee0e4ec76b0f
+                  expression: 'last(/Kstar UPS PPC by SNMP/kstar.ppc.ups.env.security4[{#SNMPINDEX}])=2'
+                  name: 'Kstar PPC: Environment security4 {#SNMPINDEX} abnormal'
+                  opdata: 'Status: {ITEM.LASTVALUE1}'
+                  priority: WARNING
+                  tags:
+                    - tag: scope
+                      value: availability
+            - uuid: 92617b8287aa4a21b665d000cac9904b
+              name: 'Kstar PPC: UPS env security5 {#SNMPINDEX}'
+              type: DEPENDENT
+              key: 'kstar.ppc.ups.env.security5[{#SNMPINDEX}]'
+              history: 30d
+              description: 'Security status'
+              valuemap:
+                name: 'Kstar PPC::upsEnvSecurity5'
+              preprocessing:
+                - type: SNMP_WALK_VALUE
+                  parameters:
+                    - '1.3.6.1.4.1.935.1.1.1.9.1.2.1.10.{#SNMPINDEX}'
+                    - '0'
+              master_item:
+                key: kstar.ppc.ups.env.entry.walk
+              tags:
+                - tag: component
+                  value: environment
+              trigger_prototypes:
+                - uuid: b817f83150b34755938cff0aff32a5ad
+                  expression: 'last(/Kstar UPS PPC by SNMP/kstar.ppc.ups.env.security5[{#SNMPINDEX}])=2'
+                  name: 'Kstar PPC: Environment security5 {#SNMPINDEX} abnormal'
+                  opdata: 'Status: {ITEM.LASTVALUE1}'
+                  priority: WARNING
+                  tags:
+                    - tag: scope
+                      value: availability
+            - uuid: 85299a29980e4a6296cef2db327c7123
+              name: 'Kstar PPC: UPS env security6 {#SNMPINDEX}'
+              type: DEPENDENT
+              key: 'kstar.ppc.ups.env.security6[{#SNMPINDEX}]'
+              history: 30d
+              description: 'Security status'
+              valuemap:
+                name: 'Kstar PPC::upsEnvSecurity6'
+              preprocessing:
+                - type: SNMP_WALK_VALUE
+                  parameters:
+                    - '1.3.6.1.4.1.935.1.1.1.9.1.2.1.11.{#SNMPINDEX}'
+                    - '0'
+              master_item:
+                key: kstar.ppc.ups.env.entry.walk
+              tags:
+                - tag: component
+                  value: environment
+              trigger_prototypes:
+                - uuid: 470f120828db44f1b68995ba9c32636a
+                  expression: 'last(/Kstar UPS PPC by SNMP/kstar.ppc.ups.env.security6[{#SNMPINDEX}])=2'
+                  name: 'Kstar PPC: Environment security6 {#SNMPINDEX} abnormal'
+                  opdata: 'Status: {ITEM.LASTVALUE1}'
+                  priority: WARNING
+                  tags:
+                    - tag: scope
+                      value: availability
+            - uuid: 7ba7e2b6b3414cf5931179ea2c71838f
+              name: 'Kstar PPC: UPS env security7 {#SNMPINDEX}'
+              type: DEPENDENT
+              key: 'kstar.ppc.ups.env.security7[{#SNMPINDEX}]'
+              history: 30d
+              description: 'Security status'
+              valuemap:
+                name: 'Kstar PPC::upsEnvSecurity7'
+              preprocessing:
+                - type: SNMP_WALK_VALUE
+                  parameters:
+                    - '1.3.6.1.4.1.935.1.1.1.9.1.2.1.12.{#SNMPINDEX}'
+                    - '0'
+              master_item:
+                key: kstar.ppc.ups.env.entry.walk
+              tags:
+                - tag: component
+                  value: environment
+              trigger_prototypes:
+                - uuid: 911f0c28bc8c458ea4b1629bae84da6a
+                  expression: 'last(/Kstar UPS PPC by SNMP/kstar.ppc.ups.env.security7[{#SNMPINDEX}])=2'
+                  name: 'Kstar PPC: Environment security7 {#SNMPINDEX} abnormal'
+                  opdata: 'Status: {ITEM.LASTVALUE1}'
+                  priority: WARNING
+                  tags:
+                    - tag: scope
+                      value: availability
+            - uuid: ccc6d529486a4e8b8491132ed5a7e2a6
+              name: 'Kstar PPC: UPS env smoke {#SNMPINDEX}'
+              type: DEPENDENT
+              key: 'kstar.ppc.ups.env.smoke[{#SNMPINDEX}]'
+              history: 30d
+              description: 'Smoke status'
+              valuemap:
+                name: 'Kstar PPC::upsEnvSmoke'
+              preprocessing:
+                - type: SNMP_WALK_VALUE
+                  parameters:
+                    - '1.3.6.1.4.1.935.1.1.1.9.1.2.1.5.{#SNMPINDEX}'
+                    - '0'
+              master_item:
+                key: kstar.ppc.ups.env.entry.walk
+              tags:
+                - tag: component
+                  value: environment
+            - uuid: 9bee43ad4900476da0de31497b24357c
+              name: 'Kstar PPC: UPS env temperature {#SNMPINDEX}'
+              type: DEPENDENT
+              key: 'kstar.ppc.ups.env.temperature[{#SNMPINDEX}]'
+              history: 30d
+              value_type: FLOAT
+              units: °C
+              description: 'The ambient environment temperature.'
+              preprocessing:
+                - type: SNMP_WALK_VALUE
+                  parameters:
+                    - '1.3.6.1.4.1.935.1.1.1.9.1.2.1.2.{#SNMPINDEX}'
+                    - '0'
+                - type: MULTIPLIER
+                  parameters:
+                    - '0.1'
+              master_item:
+                key: kstar.ppc.ups.env.entry.walk
+              tags:
+                - tag: component
+                  value: environment
+              trigger_prototypes:
+                - uuid: 784b853da7be4309a03ada88427de40b
+                  expression: 'last(/Kstar UPS PPC by SNMP/kstar.ppc.ups.env.temperature[{#SNMPINDEX}])>{$UPS.TEMP.MAX.WARN}'
+                  name: 'Kstar PPC: Environment temperature {#SNMPINDEX} is high'
+                  opdata: 'Temperature: {ITEM.LASTVALUE1}'
+                  priority: WARNING
+                  tags:
+                    - tag: scope
+                      value: availability
+            - uuid: 01f1f42645d443aebf86ae7ae2ca3392
+              name: 'Kstar PPC: UPS env water {#SNMPINDEX}'
+              type: DEPENDENT
+              key: 'kstar.ppc.ups.env.water[{#SNMPINDEX}]'
+              history: 30d
+              description: 'Water status'
+              valuemap:
+                name: 'Kstar PPC::upsEnvWater'
+              preprocessing:
+                - type: SNMP_WALK_VALUE
+                  parameters:
+                    - '1.3.6.1.4.1.935.1.1.1.9.1.2.1.4.{#SNMPINDEX}'
+                    - '0'
+              master_item:
+                key: kstar.ppc.ups.env.entry.walk
+              tags:
+                - tag: component
+                  value: environment
+          graph_prototypes:
+            - uuid: 22cb182bf7d24496a5ddaefcef1d3287
+              name: 'Kstar PPC: UPS env entry {#SNMPINDEX} overview'
+              height: '220'
+              graph_items:
+                - color: 199C0D
+                  item:
+                    host: 'Kstar UPS PPC by SNMP'
+                    key: 'kstar.ppc.ups.env.temperature[{#SNMPINDEX}]'
+                - sortorder: '1'
+                  color: F63100
+                  item:
+                    host: 'Kstar UPS PPC by SNMP'
+                    key: 'kstar.ppc.ups.env.humidity[{#SNMPINDEX}]'
+          master_item:
+            key: kstar.ppc.ups.env.entry.walk
+          preprocessing:
+            - type: SNMP_WALK_TO_JSON
+              parameters:
+                - '{#UPS_ENV_INDEX}'
+                - 1.3.6.1.4.1.935.1.1.1.9.1.2.1.1
+                - '0'
+        - uuid: e91000c04acc42edbb5a91bf2281a51c
+          name: 'Kstar PPC: UPS inspector data cell entry discovery'
+          type: DEPENDENT
+          key: kstar.ppc.ups.inspector.data.cell.entry.discovery
+          status: DISABLED
+          lifetime: 30d
+          description: |
+            Discovery of upsInspectorDataCellEntry rows from 1.3.6.1.4.1.935.1.1.1.11.1.4.1.
+            
+            Disabled in v3 because its master walk item is optional and was unsupported on the tested PPC card. Enable together with the matching raw walk item only after snmpwalk confirms the table exists.
+          item_prototypes:
+            - uuid: 4e04359acf1a46e8b6edf3640fb1daef
+              name: 'Kstar PPC: UPS inspector data cell index {#SNMPINDEX}'
+              type: DEPENDENT
+              key: 'kstar.ppc.ups.inspector.data.cell.index[{#SNMPINDEX}]'
+              history: 30d
+              description: 'The index of battery unit.'
+              preprocessing:
+                - type: SNMP_WALK_VALUE
+                  parameters:
+                    - '1.3.6.1.4.1.935.1.1.1.11.1.4.1.1.{#SNMPINDEX}'
+                    - '0'
+              master_item:
+                key: kstar.ppc.ups.inspector.data.cell.entry.walk
+              tags:
+                - tag: component
+                  value: inspector
+            - uuid: 68b02874fa9f4e498425f98265b67c2b
+              name: 'Kstar PPC: UPS inspector data cell resistance {#SNMPINDEX}'
+              type: DEPENDENT
+              key: 'kstar.ppc.ups.inspector.data.cell.resistance[{#SNMPINDEX}]'
+              history: 30d
+              units: Ω
+              description: 'The present internal battery unit resistance in 1 ohm.'
+              preprocessing:
+                - type: SNMP_WALK_VALUE
+                  parameters:
+                    - '1.3.6.1.4.1.935.1.1.1.11.1.4.1.4.{#SNMPINDEX}'
+                    - '0'
+              master_item:
+                key: kstar.ppc.ups.inspector.data.cell.entry.walk
+              tags:
+                - tag: component
+                  value: inspector
+            - uuid: ea170266cbc247599902ef229f4335fa
+              name: 'Kstar PPC: UPS inspector data cell temperature {#SNMPINDEX}'
+              type: DEPENDENT
+              key: 'kstar.ppc.ups.inspector.data.cell.temperature[{#SNMPINDEX}]'
+              history: 30d
+              value_type: FLOAT
+              units: °C
+              description: 'The current battery unit temperature expressed in 1/100 Celsius degree.'
+              preprocessing:
+                - type: SNMP_WALK_VALUE
+                  parameters:
+                    - '1.3.6.1.4.1.935.1.1.1.11.1.4.1.3.{#SNMPINDEX}'
+                    - '0'
+                - type: MULTIPLIER
+                  parameters:
+                    - '0.01'
+              master_item:
+                key: kstar.ppc.ups.inspector.data.cell.entry.walk
+              tags:
+                - tag: component
+                  value: inspector
+            - uuid: 423728a8d4964c369edcc382c29200cd
+              name: 'Kstar PPC: UPS inspector data cell voltage {#SNMPINDEX}'
+              type: DEPENDENT
+              key: 'kstar.ppc.ups.inspector.data.cell.voltage[{#SNMPINDEX}]'
+              history: 30d
+              value_type: FLOAT
+              units: V
+              description: 'The present battery unit voltage in 1/1000 VDC.'
+              preprocessing:
+                - type: SNMP_WALK_VALUE
+                  parameters:
+                    - '1.3.6.1.4.1.935.1.1.1.11.1.4.1.2.{#SNMPINDEX}'
+                    - '0'
+                - type: MULTIPLIER
+                  parameters:
+                    - '0.001'
+              master_item:
+                key: kstar.ppc.ups.inspector.data.cell.entry.walk
+              tags:
+                - tag: component
+                  value: inspector
+          graph_prototypes:
+            - uuid: 2af45f41acea4c7b935360a5161eb02a
+              name: 'Kstar PPC: UPS inspector data cell entry {#SNMPINDEX} overview'
+              height: '220'
+              graph_items:
+                - color: 199C0D
+                  item:
+                    host: 'Kstar UPS PPC by SNMP'
+                    key: 'kstar.ppc.ups.inspector.data.cell.voltage[{#SNMPINDEX}]'
+                - sortorder: '1'
+                  color: F63100
+                  item:
+                    host: 'Kstar UPS PPC by SNMP'
+                    key: 'kstar.ppc.ups.inspector.data.cell.temperature[{#SNMPINDEX}]'
+          master_item:
+            key: kstar.ppc.ups.inspector.data.cell.entry.walk
+          preprocessing:
+            - type: SNMP_WALK_TO_JSON
+              parameters:
+                - '{#UPS_INSPECTOR_DATA_CELL_INDEX}'
+                - 1.3.6.1.4.1.935.1.1.1.11.1.4.1.1
+                - '0'
+        - uuid: cea85b544f834684a553949e25419de5
+          name: 'Kstar PPC: UPS inspector data group entry discovery'
+          type: DEPENDENT
+          key: kstar.ppc.ups.inspector.data.group.entry.discovery
+          status: DISABLED
+          lifetime: 30d
+          description: |
+            Discovery of upsInspectorDataGroupEntry rows from 1.3.6.1.4.1.935.1.1.1.11.1.2.1.
+            
+            Disabled in v3 because its master walk item is optional and was unsupported on the tested PPC card. Enable together with the matching raw walk item only after snmpwalk confirms the table exists.
+          item_prototypes:
+            - uuid: 846425e1eed14ef18efb8273f5020a18
+              name: 'Kstar PPC: UPS inspector data group capacity {#SNMPINDEX}'
+              type: DEPENDENT
+              key: 'kstar.ppc.ups.inspector.data.group.capacity[{#SNMPINDEX}]'
+              history: 30d
+              value_type: FLOAT
+              units: '%'
+              description: 'The remaining battery capacity expressed in percent of full capacity.'
+              preprocessing:
+                - type: SNMP_WALK_VALUE
+                  parameters:
+                    - '1.3.6.1.4.1.935.1.1.1.11.1.2.1.4.{#SNMPINDEX}'
+                    - '0'
+                - type: MULTIPLIER
+                  parameters:
+                    - '0.1'
+              master_item:
+                key: kstar.ppc.ups.inspector.data.group.entry.walk
+              tags:
+                - tag: component
+                  value: inspector
+            - uuid: cd4864242a924d858717910085b6e43a
+              name: 'Kstar PPC: UPS inspector data group cell num {#SNMPINDEX}'
+              type: DEPENDENT
+              key: 'kstar.ppc.ups.inspector.data.group.cell.num[{#SNMPINDEX}]'
+              history: 30d
+              units: m
+              description: 'Number of battery cells in group.'
+              preprocessing:
+                - type: SNMP_WALK_VALUE
+                  parameters:
+                    - '1.3.6.1.4.1.935.1.1.1.11.1.2.1.6.{#SNMPINDEX}'
+                    - '0'
+              master_item:
+                key: kstar.ppc.ups.inspector.data.group.entry.walk
+              tags:
+                - tag: component
+                  value: inspector
+            - uuid: f685c56a848c4d218e6e137af4db9c2f
+              name: 'Kstar PPC: UPS inspector data group current {#SNMPINDEX}'
+              type: DEPENDENT
+              key: 'kstar.ppc.ups.inspector.data.group.current[{#SNMPINDEX}]'
+              history: 30d
+              value_type: FLOAT
+              units: A
+              description: 'Total current of battery group.'
+              preprocessing:
+                - type: SNMP_WALK_VALUE
+                  parameters:
+                    - '1.3.6.1.4.1.935.1.1.1.11.1.2.1.3.{#SNMPINDEX}'
+                    - '0'
+                - type: MULTIPLIER
+                  parameters:
+                    - '0.1'
+              master_item:
+                key: kstar.ppc.ups.inspector.data.group.entry.walk
+              tags:
+                - tag: component
+                  value: inspector
+            - uuid: 8587787e484c481d8ff463ed260ce756
+              name: 'Kstar PPC: UPS inspector data group index {#SNMPINDEX}'
+              type: DEPENDENT
+              key: 'kstar.ppc.ups.inspector.data.group.index[{#SNMPINDEX}]'
+              history: 30d
+              description: 'The index of battery group.'
+              preprocessing:
+                - type: SNMP_WALK_VALUE
+                  parameters:
+                    - '1.3.6.1.4.1.935.1.1.1.11.1.2.1.1.{#SNMPINDEX}'
+                    - '0'
+              master_item:
+                key: kstar.ppc.ups.inspector.data.group.entry.walk
+              tags:
+                - tag: component
+                  value: inspector
+            - uuid: 76453ec00d7c43a8a82c027527cf4bd0
+              name: 'Kstar PPC: UPS inspector data group remaining time {#SNMPINDEX}'
+              type: DEPENDENT
+              key: 'kstar.ppc.ups.inspector.data.group.remaining.time[{#SNMPINDEX}]'
+              history: 30d
+              units: m
+              description: 'The remaining battery backup time in minutes.'
+              preprocessing:
+                - type: SNMP_WALK_VALUE
+                  parameters:
+                    - '1.3.6.1.4.1.935.1.1.1.11.1.2.1.5.{#SNMPINDEX}'
+                    - '0'
+              master_item:
+                key: kstar.ppc.ups.inspector.data.group.entry.walk
+              tags:
+                - tag: component
+                  value: inspector
+            - uuid: be9fdf2bffea49b3b7a7f21810347f9c
+              name: 'Kstar PPC: UPS inspector data group voltage {#SNMPINDEX}'
+              type: DEPENDENT
+              key: 'kstar.ppc.ups.inspector.data.group.voltage[{#SNMPINDEX}]'
+              history: 30d
+              value_type: FLOAT
+              units: V
+              description: 'The present battery group voltage in 1/10 VDC.'
+              preprocessing:
+                - type: SNMP_WALK_VALUE
+                  parameters:
+                    - '1.3.6.1.4.1.935.1.1.1.11.1.2.1.2.{#SNMPINDEX}'
+                    - '0'
+                - type: MULTIPLIER
+                  parameters:
+                    - '0.1'
+              master_item:
+                key: kstar.ppc.ups.inspector.data.group.entry.walk
+              tags:
+                - tag: component
+                  value: inspector
+          graph_prototypes:
+            - uuid: 6ca0a05788104b03bbf1f38f84a3801d
+              name: 'Kstar PPC: UPS inspector data group entry {#SNMPINDEX} overview'
+              height: '220'
+              graph_items:
+                - color: 199C0D
+                  item:
+                    host: 'Kstar UPS PPC by SNMP'
+                    key: 'kstar.ppc.ups.inspector.data.group.voltage[{#SNMPINDEX}]'
+                - sortorder: '1'
+                  color: F63100
+                  item:
+                    host: 'Kstar UPS PPC by SNMP'
+                    key: 'kstar.ppc.ups.inspector.data.group.current[{#SNMPINDEX}]'
+                - sortorder: '2'
+                  color: 00611C
+                  item:
+                    host: 'Kstar UPS PPC by SNMP'
+                    key: 'kstar.ppc.ups.inspector.data.group.capacity[{#SNMPINDEX}]'
+                - sortorder: '3'
+                  color: F7941D
+                  item:
+                    host: 'Kstar UPS PPC by SNMP'
+                    key: 'kstar.ppc.ups.inspector.data.group.remaining.time[{#SNMPINDEX}]'
+          master_item:
+            key: kstar.ppc.ups.inspector.data.group.entry.walk
+          preprocessing:
+            - type: SNMP_WALK_TO_JSON
+              parameters:
+                - '{#UPS_INSPECTOR_DATA_GROUP_INDEX}'
+                - 1.3.6.1.4.1.935.1.1.1.11.1.2.1.1
+                - '0'
+      tags:
+        - tag: class
+          value: ups
+        - tag: target
+          value: kstar
+      macros:
+        - macro: '{$UPS.BATTERY.CHARGE.MIN.WARN}'
+          value: '20'
+          description: 'Warn when estimated battery charge percentage falls below this value.'
+        - macro: '{$UPS.LOAD.MAX.WARN}'
+          value: '80'
+          description: 'Warn when output load percentage is above this value.'
+        - macro: '{$UPS.RUNTIME.MIN.WARN}'
+          value: '10'
+          description: 'Warn when estimated runtime in minutes falls below this value.'
+        - macro: '{$UPS.TEMP.MAX.WARN}'
+          value: '40'
+          description: 'Warn when battery/environment temperature is above this Celsius value.'
+      valuemaps:
+        - uuid: 4052dd756eb14aa69a125146b4dc1454
+          name: 'Kstar PPC::deviceAccept'
+          mappings:
+            - value: '1'
+              newvalue: 'yes'
+            - value: '2'
+              newvalue: 'no'
+        - uuid: 15c4be4842e84bedb9606a64d63fc039
+          name: 'Kstar PPC::receiverAccept'
+          mappings:
+            - value: '1'
+              newvalue: 'yes'
+            - value: '2'
+              newvalue: 'no'
+        - uuid: b46a858b8fd04a97b4d632d84957be8a
+          name: 'Kstar PPC::severityLevel'
+          mappings:
+            - value: '1'
+              newvalue: information
+            - value: '2'
+              newvalue: warning
+            - value: '3'
+              newvalue: severe
+        - uuid: 2cc05a29626f4cc4bdd1c48381a498d9
+          name: 'Kstar PPC::upsBaseBatteryStatus'
+          mappings:
+            - value: '1'
+              newvalue: unknown
+            - value: '2'
+              newvalue: batteryNormal
+            - value: '3'
+              newvalue: batteryLow
+        - uuid: 91ce888dae504b6987928e7ffa42fd24
+          name: 'Kstar PPC::upsBaseControlConserveBattery'
+          mappings:
+            - value: '1'
+              newvalue: noTurnOffUps
+            - value: '2'
+              newvalue: turnUpsOffToConserveBattery
+            - value: '3'
+              newvalue: turnUpsOffToConserveBatteryDelay
+        - uuid: db18fa3ef56e4ff59c7e44e389301a04
+          name: 'Kstar PPC::upsBaseOutputStatus'
+          mappings:
+            - value: '1'
+              newvalue: unknown
+            - value: '2'
+              newvalue: onLine
+            - value: '3'
+              newvalue: onBattery
+            - value: '4'
+              newvalue: onBoost
+            - value: '5'
+              newvalue: sleeping
+            - value: '6'
+              newvalue: onBypass
+            - value: '7'
+              newvalue: rebooting
+            - value: '8'
+              newvalue: standBy
+            - value: '9'
+              newvalue: onBuck
+        - uuid: 2abfd446eaf6422a874562608276d674
+          name: 'Kstar PPC::upsDischargerControlDischarge'
+          mappings:
+            - value: '1'
+              newvalue: stop
+            - value: '2'
+              newvalue: start
+        - uuid: 30293eef374144d3aa144f03e43bac56
+          name: 'Kstar PPC::upsDischargerDataStatus'
+          mappings:
+            - value: '1'
+              newvalue: charge
+            - value: '2'
+              newvalue: discharge
+        - uuid: 0a04d66c97e94fd38a756928dc2cd9ed
+          name: 'Kstar PPC::upsDischargerSettingsPeriodicType'
+          mappings:
+            - value: '0'
+              newvalue: disable
+            - value: '1'
+              newvalue: weekly
+            - value: '2'
+              newvalue: monthly
+        - uuid: 9456a49c74404e029d52d73ff0d14a07
+          name: 'Kstar PPC::upsEnvSecurity1'
+          mappings:
+            - value: '0'
+              newvalue: 'not installed/unused'
+            - value: '1'
+              newvalue: normal
+            - value: '2'
+              newvalue: abnormal
+        - uuid: 9565d9f38ee6432d911bb64b536e6f99
+          name: 'Kstar PPC::upsEnvSecurity2'
+          mappings:
+            - value: '0'
+              newvalue: 'not installed/unused'
+            - value: '1'
+              newvalue: normal
+            - value: '2'
+              newvalue: abnormal
+        - uuid: 384a95b382cd45b6b9eff81bc362c2ab
+          name: 'Kstar PPC::upsEnvSecurity3'
+          mappings:
+            - value: '0'
+              newvalue: 'not installed/unused'
+            - value: '1'
+              newvalue: normal
+            - value: '2'
+              newvalue: abnormal
+        - uuid: c4cbfd3869124db0bb1828e3c6930267
+          name: 'Kstar PPC::upsEnvSecurity4'
+          mappings:
+            - value: '0'
+              newvalue: 'not installed/unused'
+            - value: '1'
+              newvalue: normal
+            - value: '2'
+              newvalue: abnormal
+        - uuid: a25005dfe79b4b6abf894c2549033d28
+          name: 'Kstar PPC::upsEnvSecurity5'
+          mappings:
+            - value: '0'
+              newvalue: 'not installed/unused'
+            - value: '1'
+              newvalue: normal
+            - value: '2'
+              newvalue: abnormal
+        - uuid: 4595b986651144d5a6b17eb8058a6fed
+          name: 'Kstar PPC::upsEnvSecurity6'
+          mappings:
+            - value: '0'
+              newvalue: 'not installed/unused'
+            - value: '1'
+              newvalue: normal
+            - value: '2'
+              newvalue: abnormal
+        - uuid: 80eacb3f29644c75a73b248251567039
+          name: 'Kstar PPC::upsEnvSecurity7'
+          mappings:
+            - value: '0'
+              newvalue: 'not installed/unused'
+            - value: '1'
+              newvalue: normal
+            - value: '2'
+              newvalue: abnormal
+        - uuid: e35735320cad4772b73ba07309aa0226
+          name: 'Kstar PPC::upsEnvSmoke'
+          mappings:
+            - value: '1'
+              newvalue: normal
+            - value: '2'
+              newvalue: abnormal
+        - uuid: 189803649ccc4d9887edb2787ccb9975
+          name: 'Kstar PPC::upsEnvWater'
+          mappings:
+            - value: '1'
+              newvalue: normal
+            - value: '2'
+              newvalue: abnormal
+        - uuid: b3d79038cbcb44d8a7b79a91fa1fb296
+          name: 'Kstar PPC::upsSmartBatteryReplaceIndicator'
+          mappings:
+            - value: '1'
+              newvalue: noBatteryNeedsReplacing
+            - value: '2'
+              newvalue: batteryNeedsReplacing
+        - uuid: 809c0393cdf9494b9c58f21f8c1ce07e
+          name: 'Kstar PPC::upsSmartConfigAlarm'
+          mappings:
+            - value: '1'
+              newvalue: timed
+            - value: '2'
+              newvalue: atLowBattery
+            - value: '3'
+              newvalue: never
+        - uuid: cb3ae60d76754a9fa06e05345c1532f4
+          name: 'Kstar PPC::upsSmartConfigSensitivity'
+          mappings:
+            - value: '1'
+              newvalue: auto
+            - value: '2'
+              newvalue: low
+            - value: '3'
+              newvalue: medium
+            - value: '4'
+              newvalue: high
+        - uuid: 547518a7f9ab4551bd302d4f92b4c603
+          name: 'Kstar PPC::upsSmartConfigSetEEPROMDefaults'
+          mappings:
+            - value: '1'
+              newvalue: noSetEEPROMDefaults
+            - value: '2'
+              newvalue: setEEPROMDefaults
+        - uuid: 82f3c523867e44bfabccbbc899be6730
+          name: 'Kstar PPC::upsSmartControlFlashAndBeep'
+          mappings:
+            - value: '1'
+              newvalue: noFlashAndBeep
+            - value: '2'
+              newvalue: flashAndBeep
+        - uuid: 8ca36e84e58d4658be6d56ccd22ed8d7
+          name: 'Kstar PPC::upsSmartControlRebootUps'
+          mappings:
+            - value: '1'
+              newvalue: noRebootUps
+            - value: '2'
+              newvalue: rebootUps
+        - uuid: 4e6b018f0fad478eac0c72ee585f090e
+          name: 'Kstar PPC::upsSmartControlSimulatePowerFail'
+          mappings:
+            - value: '1'
+              newvalue: noSimulatePowerFailure
+            - value: '2'
+              newvalue: simulatePowerFailure
+        - uuid: 6d39e342f71943a0912fb590cdfa48f6
+          name: 'Kstar PPC::upsSmartControlTurnOnUpsLoad'
+          mappings:
+            - value: '1'
+              newvalue: noUpsSmartControlTurnOnUpsLoad
+            - value: '2'
+              newvalue: upsSmartControlTurnOnUpsLoad
+        - uuid: 566b90c5715742519c2ecc9b6ad5359a
+          name: 'Kstar PPC::upsSmartControlUpsOff'
+          mappings:
+            - value: '1'
+              newvalue: noTurnUpsOff
+            - value: '2'
+              newvalue: turnUpsOff
+        - uuid: 4133ff8213364b9c81f6c16c307216bd
+          name: 'Kstar PPC::upsSmartControlUpsSleep'
+          mappings:
+            - value: '1'
+              newvalue: noPutUpsToSleep
+            - value: '2'
+              newvalue: putUpsToSleep
+        - uuid: 9dda08cf54434f7aa37656b6ab3e4b23
+          name: 'Kstar PPC::upsSmartInputLineFailCause'
+          mappings:
+            - value: '1'
+              newvalue: noTransfer
+            - value: '2'
+              newvalue: highLineVoltage
+            - value: '3'
+              newvalue: brownout
+            - value: '4'
+              newvalue: blackout
+            - value: '5'
+              newvalue: smallMomentarySag
+            - value: '6'
+              newvalue: deepMomentarySag
+            - value: '7'
+              newvalue: smallMomentarySpike
+            - value: '8'
+              newvalue: largeMomentarySpike
+        - uuid: e4e3c1a0f45c48b0bee3b77f951a504c
+          name: 'Kstar PPC::upsSmartTestCalibrationResults'
+          mappings:
+            - value: '1'
+              newvalue: ok
+            - value: '2'
+              newvalue: invalidTest
+            - value: '3'
+              newvalue: calibrationInProgress
+        - uuid: b295a7fb8eed48b48fd3924c0b3373eb
+          name: 'Kstar PPC::upsSmartTestDiagnostics'
+          mappings:
+            - value: '1'
+              newvalue: noTestDiagnostics
+            - value: '2'
+              newvalue: testDiagnostics
+        - uuid: 3ed975b23f86432b82553e338c194fd9
+          name: 'Kstar PPC::upsSmartTestDiagnosticSchedule'
+          mappings:
+            - value: '1'
+              newvalue: unknown
+            - value: '2'
+              newvalue: biweekly
+            - value: '3'
+              newvalue: weekly
+            - value: '4'
+              newvalue: never
+        - uuid: cb4a4e2a54794b47b1caef032993458f
+          name: 'Kstar PPC::upsSmartTestDiagnosticsResults'
+          mappings:
+            - value: '1'
+              newvalue: ok
+            - value: '2'
+              newvalue: failed
+            - value: '3'
+              newvalue: invalidTest
+            - value: '4'
+              newvalue: testInProgress
+        - uuid: 5cd87a164fc14619a9b3deb527d8e191
+          name: 'Kstar PPC::upsSmartTestIndicators'
+          mappings:
+            - value: '1'
+              newvalue: noTestIndicators
+            - value: '2'
+              newvalue: testIndicators
+        - uuid: 01f271cc639a47269e52cb08fd7ebb66
+          name: 'Kstar PPC::upsSmartTestRuntimeCalibration'
+          mappings:
+            - value: '1'
+              newvalue: noPerformCalibration
+            - value: '2'
+              newvalue: performCalibration
+            - value: '3'
+              newvalue: cancelCurrentCalibration
+        - uuid: 527a28df975741f8a9ad9154929dc3fe
+          name: 'Kstar PPC::upsThreePhaseDCandRectifierStatusBatteryStatus'
+          mappings:
+            - value: '4'
+              newvalue: backup
+            - value: '5'
+              newvalue: acnormal
+        - uuid: c92e9856ef744281976b3d27f2499fec
+          name: 'Kstar PPC::upsThreePhaseDCandRectifierStatusChargeStatus'
+          mappings:
+            - value: '6'
+              newvalue: boost
+            - value: '7'
+              newvalue: float
+            - value: '16'
+              newvalue: 'no'
+        - uuid: f095ccf256bf4e7a9458357dc034b2b3
+          name: 'Kstar PPC::upsThreePhaseDCandRectifierStatusInAndOut'
+          mappings:
+            - value: '2'
+              newvalue: threeInOneOut
+            - value: '3'
+              newvalue: threeInThreeOut
+        - uuid: d66ca3cc8a9344b49e74fa4522730638
+          name: 'Kstar PPC::upsThreePhaseDCandRectifierStatusLowBattery'
+          mappings:
+            - value: '14'
+              newvalue: 'yes'
+            - value: '16'
+              newvalue: 'no'
+        - uuid: e282046033874332b7c8be7a4f7191c2
+          name: 'Kstar PPC::upsThreePhaseDCandRectifierStatusLowBatteryShutdown'
+          mappings:
+            - value: '14'
+              newvalue: 'yes'
+            - value: '16'
+              newvalue: 'no'
+        - uuid: 91580953f96c4747b9a880f0a66d959e
+          name: 'Kstar PPC::upsThreePhaseDCandRectifierStatusRecOperating'
+          mappings:
+            - value: '14'
+              newvalue: 'yes'
+            - value: '16'
+              newvalue: 'no'
+        - uuid: fe45885b4949414e81a0f826e2e5a587
+          name: 'Kstar PPC::upsThreePhaseDCandRectifierStatusRecRotError'
+          mappings:
+            - value: '14'
+              newvalue: 'yes'
+            - value: '16'
+              newvalue: 'no'
+        - uuid: a2050cabe8a14d14b096c51d365f8cbf
+          name: 'Kstar PPC::upsThreePhaseFaultStatusBypassBreaker'
+          mappings:
+            - value: '14'
+              newvalue: 'yes'
+            - value: '16'
+              newvalue: 'no'
+        - uuid: 4a1a98972b8441049d27931f37734961
+          name: 'Kstar PPC::upsThreePhaseFaultStatusEmergencyStop'
+          mappings:
+            - value: '14'
+              newvalue: 'yes'
+            - value: '16'
+              newvalue: 'no'
+        - uuid: e07ceeb8c6cd45d29eca895c1639af20
+          name: 'Kstar PPC::upsThreePhaseFaultStatusHighDCShutdown'
+          mappings:
+            - value: '14'
+              newvalue: 'yes'
+            - value: '16'
+              newvalue: 'no'
+        - uuid: 973a417ddbdf44809b2c320530de3a06
+          name: 'Kstar PPC::upsThreePhaseFaultStatusInverterOutputFail'
+          mappings:
+            - value: '14'
+              newvalue: 'yes'
+            - value: '16'
+              newvalue: 'no'
+        - uuid: da2755ec7ff74bf5b1b91bf20f395221
+          name: 'Kstar PPC::upsThreePhaseFaultStatusOverLoad'
+          mappings:
+            - value: '14'
+              newvalue: 'yes'
+            - value: '16'
+              newvalue: 'no'
+        - uuid: d49314183ec047169687700ddae0b8ee
+          name: 'Kstar PPC::upsThreePhaseFaultStatusOverTemperature'
+          mappings:
+            - value: '14'
+              newvalue: 'yes'
+            - value: '16'
+              newvalue: 'no'
+        - uuid: 1da929a2c8cc4c799e7ccdc91be1dcb0
+          name: 'Kstar PPC::upsThreePhaseFaultStatusShortCircuit'
+          mappings:
+            - value: '14'
+              newvalue: 'yes'
+            - value: '16'
+              newvalue: 'no'
+        - uuid: a65ee72741374500b6212d099a22d7c6
+          name: 'Kstar PPC::upsThreePhaseUPSStaticSwitchMode'
+          mappings:
+            - value: '12'
+              newvalue: invermode
+            - value: '13'
+              newvalue: bypassmode
+        - uuid: d0e319487d6740c782c1e2f68b03d53f
+          name: 'Kstar PPC::upsThreePhaseUPSStatusACStatus'
+          mappings:
+            - value: '10'
+              newvalue: normal
+            - value: '11'
+              newvalue: abnormal
+        - uuid: bd6c69ed022b4fe6b3403bb21d65b2d2
+          name: 'Kstar PPC::upsThreePhaseUPSStatusBypassFreqFail'
+          mappings:
+            - value: '14'
+              newvalue: 'yes'
+            - value: '16'
+              newvalue: 'no'
+        - uuid: f2a436168c994a93a155294355155c6b
+          name: 'Kstar PPC::upsThreePhaseUPSStatusInverterOperating'
+          mappings:
+            - value: '14'
+              newvalue: 'yes'
+            - value: '16'
+              newvalue: 'no'
+        - uuid: 821e864c659e4173a6e9f2d27959a279
+          name: 'Kstar PPC::upsThreePhaseUPSStatusManualBypassBreaker'
+          mappings:
+            - value: '8'
+              newvalue: close
+            - value: '9'
+              newvalue: open
+        - uuid: abd86c5f4d044e3e8fd2f14e6cb29114
+          name: 'Zabbix interface availability'
+          mappings:
+            - value: '0'
+              newvalue: Unavailable
+            - value: '1'
+              newvalue: Available
+            - value: '2'
+              newvalue: Unknown
+  graphs:
+    - uuid: 40eb4b0b692946cb8b479dc2f57d9f95
+      name: 'Kstar PPC: Alarm and status overview'
+      height: '220'
+      graph_items:
+        - color: 199C0D
+          item:
+            host: 'Kstar UPS PPC by SNMP'
+            key: kstar.ppc.ups.base.battery.status
+        - sortorder: '1'
+          color: F63100
+          item:
+            host: 'Kstar UPS PPC by SNMP'
+            key: kstar.ppc.ups.base.output.status
+    - uuid: 49297858327c4efea540fed1d44c77e3
+      name: 'Kstar PPC: Battery overview'
+      height: '220'
+      graph_items:
+        - color: 199C0D
+          item:
+            host: 'Kstar UPS PPC by SNMP'
+            key: kstar.ppc.ups.smart.battery.capacity
+        - sortorder: '1'
+          color: F63100
+          item:
+            host: 'Kstar UPS PPC by SNMP'
+            key: kstar.ppc.ups.smart.battery.run.time.remaining
+        - sortorder: '2'
+          color: 00611C
+          item:
+            host: 'Kstar UPS PPC by SNMP'
+            key: kstar.ppc.ups.smart.battery.voltage
+        - sortorder: '3'
+          color: F7941D
+          item:
+            host: 'Kstar UPS PPC by SNMP'
+            key: kstar.ppc.ups.smart.battery.current
+        - sortorder: '4'
+          color: 2774A4
+          item:
+            host: 'Kstar UPS PPC by SNMP'
+            key: kstar.ppc.ups.smart.battery.temperature
+    - uuid: 58e99dec975640a8ac94cefa57a5cea8
+      name: 'Kstar PPC: Input and output overview'
+      height: '220'
+      graph_items:
+        - color: 199C0D
+          item:
+            host: 'Kstar UPS PPC by SNMP'
+            key: kstar.ppc.ups.smart.input.line.voltage
+        - sortorder: '1'
+          color: F63100
+          item:
+            host: 'Kstar UPS PPC by SNMP'
+            key: kstar.ppc.ups.smart.output.voltage
+        - sortorder: '2'
+          color: 00611C
+          item:
+            host: 'Kstar UPS PPC by SNMP'
+            key: kstar.ppc.ups.smart.input.frequency
+        - sortorder: '3'
+          color: F7941D
+          item:
+            host: 'Kstar UPS PPC by SNMP'
+            key: kstar.ppc.ups.smart.output.frequency
+        - sortorder: '4'
+          color: 2774A4
+          item:
+            host: 'Kstar UPS PPC by SNMP'
+            key: kstar.ppc.ups.smart.output.load
